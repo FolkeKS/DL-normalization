@@ -95,13 +95,17 @@ class Unet(pl.LightningModule):
         self.predict_squared = predict_squared
         self.predict_inverse = predict_inverse
         self.data_transformation = data_transformation
+        
+        
         if data_transformation == "standardize":
+            
             f = open(data_dir+"norms_std_mean.txt","r")
+            lines = f.readlines()
+            f.seek(0)
+            assert len(lines)==2,f"len {len(lines)}"
             
-            assert len(f.readlines())==2
-            
-            self.norm_std=float(f.readlines()[0])
-            self.norm_mean=float(f.readlines()[1])
+            self.norm_std=float(lines[0])
+            self.norm_mean=float(lines[1])
             f.close()
         elif data_transformation == "normalize":
             f = open(data_dir+"norms_min_max.txt","r")
@@ -264,7 +268,6 @@ class UnetGenerator(nn.Module):
         It is a recursive process.
         """
         super(UnetGenerator, self).__init__()
-        #print(use_dropout)
         # construct unet structure
         unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None, submodule=None,
                                              norm_layer=norm_layer, 

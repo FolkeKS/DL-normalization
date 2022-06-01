@@ -1,2 +1,4 @@
 *.DS_Store
 *.pyc
+results/wandb/*
+results/models/*

@@ -106,7 +106,7 @@ def main(data_path,n_train,n_valid,pad,data_transformation):
             X = pad_data(X,pad)
             
             fnameX = save_path + "valid/X/"+ file_list.split('.')[0]
-            fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm"
+            fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
             np.savez_compressed(fnameX, X)
             np.savez_compressed(fnameY, Y)
             
