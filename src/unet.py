@@ -73,25 +73,15 @@ class Unet(pl.LightningModule):
            
            n_classes : n_classes
            
-           bilinear : True
-           
            loss_fn : loss_fn 
            
            depth : depth
            
            depth_0_filters:depth_0_filters
-           
-           upsample_layer : upsample_layer
-           
-           bilinear:bilinear
-           
+
            predict_squared : predict_squared
            
            predict_inverse : predict_inverse
-           
-           save_every_n_predictions:save_every_n_predictions
-           
-           save_path : save_path
            
            optimizer
        """
@@ -104,7 +94,6 @@ class Unet(pl.LightningModule):
         self.optimizer = optimizer
         self.predict_squared = predict_squared
         self.predict_inverse = predict_inverse
-        #self.learning_rate = learning_rate
         self.data_transformation = data_transformation
         if data_transformation == "standardize":
             f = open(data_dir+"norms_std_mean.txt","r")
@@ -117,16 +106,12 @@ class Unet(pl.LightningModule):
         elif data_transformation == "normalize":
             f = open(data_dir+"norms_min_max.txt","r")
             lines = f.readlines()
-            #print(lines)
             f.seek(0)
             assert len(lines)==2,f"len {len(lines)}"
             
-            self.norm_min=float(lines[0])#.rstrip())
-            self.norm_max=float(lines[1])#(f.readline()[1].rstrip())
-            
-            #self.norm_min=float(linecache.getline(data_dir+"norms_min_max.txt", 1))
-            #self.norm_max=float(linecache.getline(data_dir+"norms_min_max.txt", 2))
-            print("min= ",self.norm_min,self.norm_max)
+            self.norm_min=float(lines[0])
+            self.norm_max=float(lines[1])
+ 
             f.close()
             
             
@@ -175,8 +160,8 @@ class Unet(pl.LightningModule):
             #should not be touched for the true values y
             idx = torch.nonzero(y).split(1, dim=1)
             
-            y[idx]= (y[idx]+self.norm_min) * (self.norm_max-self.norm_min)
-            y_hat = (y_hat+self.norm_min) * (self.norm_max-self.norm_min)
+            y[idx]= (y[idx]) * (self.norm_max-self.norm_min) +self.norm_min
+            y_hat = (y_hat) * (self.norm_max-self.norm_min) +self.norm_min
             
             
         if self.predict_squared == True:
@@ -209,6 +194,7 @@ class Unet(pl.LightningModule):
         if W>360:
             W=360
             y_hat=transforms.CenterCrop([H,W])(y_hat)
+            
         loss = masked_mse(y_hat, y) 
         
         if self.data_transformation == "standardize":
@@ -222,8 +208,8 @@ class Unet(pl.LightningModule):
             #should not be touched for the true values y
             idx = torch.nonzero(y).split(1, dim=1)
             
-            y[idx]= (y[idx]+self.norm_min) * (self.norm_max-self.norm_min)
-            y_hat = (y_hat+self.norm_min) * (self.norm_max-self.norm_min)
+            y[idx]= (y[idx]) * (self.norm_max-self.norm_min) +self.norm_min
+            y_hat = (y_hat) * (self.norm_max-self.norm_min) +self.norm_min
             
             
         if self.predict_squared == True:
