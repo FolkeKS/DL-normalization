@@ -4,12 +4,12 @@ trainer:
     class_path: pytorch_lightning.loggers.WandbLogger
     init_args:
       name: null
-      save_dir: results
+      save_dir: results/wandb
       offline: false
       id: null
       anonymous: null
       version: null
-      project: learning_curve
+      project: demo
       log_model: false
       experiment: null
       prefix: ''
@@ -20,7 +20,7 @@ trainer:
   callbacks:
   - class_path: pytorch_lightning.callbacks.ModelCheckpoint
     init_args:
-      dirpath: results/models/
+      dirpath: null
       filename: '{epoch}-{val_loss:.5f}'
       monitor: val_loss
       verbose: false
