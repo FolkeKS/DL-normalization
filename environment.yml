@@ -1,0 +1,9 @@
+name: DL-normalization
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - torchvision
+  - pytorch-lightning[extra]
+  - wandb
+  - jsonargparse[signatures]
