@@ -14,11 +14,13 @@ def get_std_mean(dirpath,var_names = ["alpha_i_minus","alpha_j_minus","w","norm_
     values = dict((var,[]) for var in var_names)
 
     for file_list in os.listdir(dirpath)[:n]:
-        with nc.Dataset(dirpath +file_list, 'r') as data:
-            for var in var_names:
-                aux = data[var][:]
-                values[var] = np.concatenate((values[var],aux[np.nonzero(aux)]))
-     
+        if file_list.split('.')[-1]=="nc":
+            with nc.Dataset(dirpath +file_list, 'r') as data:
+                for var in var_names:
+                    aux = data[var][:]
+                    values[var] = np.concatenate((values[var],aux[np.nonzero(aux)]))
+        else:
+            print(file_list + " not considered")      
                 
     mean = dict((var,np.mean(values[var])) for var in var_names)            
     std = dict((var,np.std(values[var])) for var in var_names)          
@@ -27,11 +29,13 @@ def get_std_mean(dirpath,var_names = ["alpha_i_minus","alpha_j_minus","w","norm_
 def get_min_max(dirpath,var_names = ["alpha_i_minus","alpha_j_minus","w","norm_coeffs"],n=None):
     values = dict((var,[]) for var in var_names)
     for file_list in os.listdir(dirpath):
-        with nc.Dataset(dirpath +file_list, 'r') as data:
-            for var in var_names:
-                aux = data[var][:]
-                values[var] = np.concatenate((values[var],aux[np.nonzero(aux)]))
-                
+        if file_list.split('.')[-1]=="nc":
+            with nc.Dataset(dirpath +file_list, 'r') as data:
+                for var in var_names:
+                    aux = data[var][:]
+                    values[var] = np.concatenate((values[var],aux[np.nonzero(aux)]))
+        else:
+            print(file_list + " not considered")       
                 
     mins = dict((var,np.min(values[var])) for var in var_names)            
     maxs = dict((var,np.max(values[var])) for var in var_names)          

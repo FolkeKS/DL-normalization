@@ -6,3 +6,6 @@ dependencies:
   - pytorch-lightning[extra]
   - wandb
   - jsonargparse[signatures]
+  - netCDF4
+  - matplotlib
+  - cartopy

@@ -13,11 +13,13 @@ import numpy as np
 from argparse import ArgumentParser
 import json
 
-def main(data_path,n_train,n_valid,pad,data_transformation):
-
-    assert n_train + n_valid <=len(os.listdir(data_path)), f"Not enough data, reduce number of samples"
-    save_path = "data/processed/"+ data_path.split("/")[-2]+ str(n_train) +"_samples_" + data_transformation +"/"
+def main(data_path,n_train,n_valid,pad,data_transformation,valid_path):
     
+    if n_train is not None:
+        assert n_train + n_valid <=len(os.listdir(data_path)), f"Not enough data, reduce number of samples"
+        save_path = "data/processed/"+ data_path.split("/")[-2]+ str(n_train) +"_samples_" + data_transformation +"/"
+    else:
+        save_path = "data/processed/"+ data_path.split("/")[-2]+ str(len(os.listdir(data_path))) +"_samples_" + data_transformation +"/"
     
     # Check whether the specified path exists or not
     assert os.path.exists(save_path)==False, save_path + " is not empty"
@@ -67,60 +69,90 @@ def main(data_path,n_train,n_valid,pad,data_transformation):
     # Save train data
     
     for file_list in os.listdir(data_path)[:n_train]:
-        with nc.Dataset(data_path +file_list, 'r') as data:
-            
-            if data_transformation=="standardize":
-                X=get_standardized_data(data,["alpha_i_minus","alpha_j_minus","w"],dstd,dmean)
-                Y=get_standardized_data(data,["norm_coeffs"],dstd,dmean)
+        if file_list.split('.')[-1]=="nc":
+            with nc.Dataset(data_path +file_list, 'r') as data:
                 
-                
-            elif data_transformation=="normalize":
-                X=get_normalized_data(data,["alpha_i_minus","alpha_j_minus","w"],dmin,dmax)
-                Y=get_normalized_data(data,["norm_coeffs"],dmin,dmax)
-
-            else:
-                raise NotImplementedError("available: standardize,normalize")
-            
-            X = pad_data(X,pad)
-            
-            fnameX = save_path + "train/X/"+ file_list.split('.')[0]
-            fnameY = save_path + "train/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
-            np.savez_compressed(fnameX, X)
-            np.savez_compressed(fnameY, Y)
-     
-    # Save validation data
+                if data_transformation=="standardize":
+                    X=get_standardized_data(data,["alpha_i_minus","alpha_j_minus","w"],dstd,dmean)
+                    Y=get_standardized_data(data,["norm_coeffs"],dstd,dmean)
+                    
+                    
+                elif data_transformation=="normalize":
+                    X=get_normalized_data(data,["alpha_i_minus","alpha_j_minus","w"],dmin,dmax)
+                    Y=get_normalized_data(data,["norm_coeffs"],dmin,dmax)
     
-    for file_list in os.listdir(data_path)[n_train:n_valid+n_train]:
-        with nc.Dataset(data_path +file_list, 'r') as data:
-            
-            if data_transformation=="standardize":
-                X=get_standardized_data(data,["alpha_i_minus","alpha_j_minus","w"],dstd,dmean)
-                Y=get_standardized_data(data,["norm_coeffs"],dstd,dmean)
+                else:
+                    raise NotImplementedError("available: standardize,normalize")
                 
-            elif data_transformation=="normalize":
-                X=get_normalized_data(data,["alpha_i_minus","alpha_j_minus","w"],dmin,dmax)
-                Y=get_normalized_data(data,["norm_coeffs"],dmin,dmax)
+                X = pad_data(X,pad)
+                
+                fnameX = save_path + "train/X/"+ file_list.split('.')[0]
+                fnameY = save_path + "train/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
+                np.savez_compressed(fnameX, X)
+                np.savez_compressed(fnameY, Y)
+        else:
+            print(file_list + " not considered")
+    
+    # Save validation data
+    if valid_path is None:
+        for file_list in os.listdir(data_path)[n_train:n_valid+n_train]:
+            if file_list.split('.')[-1]=="nc":
+                with nc.Dataset(data_path +file_list, 'r') as data:
+                    
+                    if data_transformation=="standardize":
+                        X=get_standardized_data(data,["alpha_i_minus","alpha_j_minus","w"],dstd,dmean)
+                        Y=get_standardized_data(data,["norm_coeffs"],dstd,dmean)
+                        
+                    elif data_transformation=="normalize":
+                        X=get_normalized_data(data,["alpha_i_minus","alpha_j_minus","w"],dmin,dmax)
+                        Y=get_normalized_data(data,["norm_coeffs"],dmin,dmax)
+                    else:
+                        raise NotImplementedError("available: standardize,normalize")
+                    
+                    X = pad_data(X,pad)
+                    
+                    fnameX = save_path + "valid/X/"+ file_list.split('.')[0]
+                    fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
+                    np.savez_compressed(fnameX, X)
+                    np.savez_compressed(fnameY, Y)
+                
             else:
-                raise NotImplementedError("available: standardize,normalize")
-            
-            X = pad_data(X,pad)
-            
-            fnameX = save_path + "valid/X/"+ file_list.split('.')[0]
-            fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
-            np.savez_compressed(fnameX, X)
-            np.savez_compressed(fnameY, Y)
-            
-        
+                print(file_list + " not considered")
+    else:
+        for file_list in os.listdir(valid_path):
+            if file_list.split('.')[-1]=="nc":
+                with nc.Dataset(valid_path +file_list, 'r') as data:
+                    
+                    if data_transformation=="standardize":
+                        X=get_standardized_data(data,["alpha_i_minus","alpha_j_minus","w"],dstd,dmean)
+                        Y=get_standardized_data(data,["norm_coeffs"],dstd,dmean)
+                        
+                    elif data_transformation=="normalize":
+                        X=get_normalized_data(data,["alpha_i_minus","alpha_j_minus","w"],dmin,dmax)
+                        Y=get_normalized_data(data,["norm_coeffs"],dmin,dmax)
+                    else:
+                        raise NotImplementedError("available: standardize,normalize")
+                    
+                    X = pad_data(X,pad)
+                    
+                    fnameX = save_path + "valid/X/"+ file_list.split('.')[0]
+                    fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
+                    np.savez_compressed(fnameX, X)
+                    np.savez_compressed(fnameY, Y)
+                
+            else:
+                print(file_list + " not considered")
 if __name__ == "__main__":
     parser = ArgumentParser()
 
     parser.add_argument("--data_path", type=str, default="data/demo/isotropic_noise/")
     parser.add_argument("--n_train", type=int, default=None, help="Number of training samples")
     parser.add_argument("--n_valid", type=int, default=None, help="Number of validation samples")
-    parser.add_argument("--pad", type=int, default=40)
+    parser.add_argument("--pad", type=int, default=44)
     parser.add_argument("--data_transformation", type=str, default="standardize")
+    parser.add_argument("--valid_path", type=str, default=None)
     
 
     args = parser.parse_args()
 
-    main(args.data_path,args.n_train,args.n_valid,args.pad,args.data_transformation)
+    main(args.data_path,args.n_train,args.n_valid,args.pad,args.data_transformation,args.valid_path)
