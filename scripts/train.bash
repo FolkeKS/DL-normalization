@@ -6,5 +6,5 @@
 #SBATCH --time=12:00:00
 unset PYTHONHOME
 
-srun python python scripts/trainer.py fit --config configs/kraken_learning_curve.yaml> results/outputs/${SLURM_JOBID}.out
+srun python scripts/trainer.py fit --config configs/kraken_demo.yaml> results/outputs/${SLURM_JOBID}.out
    

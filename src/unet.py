@@ -95,7 +95,7 @@ class Unet(pl.LightningModule):
         self.predict_squared = predict_squared
         self.predict_inverse = predict_inverse
         self.data_transformation = data_transformation
-        
+        self.data_dir = data_dir
         
         if data_transformation == "standardize":
             

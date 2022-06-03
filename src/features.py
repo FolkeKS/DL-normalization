@@ -45,8 +45,8 @@ def pad_data(X,pad):
     
     padded = np.empty((X.shape[0],X.shape[1],X.shape[2] + 2 * pad))
     padded[:,:,pad:-pad] = np.copy(X)
-    padded[:,:,:pad] = np.copy(X[:,:,-2*pad:-pad])
-    padded[:,:,-pad:] = np.copy(X[:,:,pad:2*pad])
+    padded[:,:,:pad] = np.copy(padded[:,:,-2*pad:-pad])
+    padded[:,:,-pad:] = np.copy(padded[:,:,pad:2*pad])
     
     return padded
 
