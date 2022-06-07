@@ -1,7 +1,4 @@
 *.DS_Store
 *.pyc
-results/wandb/*
-results/models/*
-results/outputs/*
 data/*
 src.egg-info

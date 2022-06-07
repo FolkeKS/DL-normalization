@@ -241,7 +241,7 @@ class Unet(pl.LightningModule):
 
 
     def configure_optimizers(self):
-        print(self.parameters())
+        #print(self.parameters())
         if self.optimizer=="Adamax":
             return torch.optim.Adamax(self.parameters())
         elif self.optimizer=="Adam":
