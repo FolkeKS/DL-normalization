@@ -24,3 +24,7 @@ From project directory, run:
 ## Train model on demonstration data :
 
 <code> python scripts/trainer.py fit --config  configs/demo.yaml </code> 
+
+### Using SLURM
+
+<code> sbatch scripts/train.sh </code> 
