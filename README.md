@@ -13,7 +13,7 @@ From project directory, run:
 
 <code> pip install -e . </code> 
 
-## Set up wandb for eperiment tracking:
+## Set up wandb for experiment tracking:
 
 <ol>
   <li>Sign up at https://wandb.ai/site and log in</li>
