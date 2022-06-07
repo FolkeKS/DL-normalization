@@ -18,7 +18,7 @@ From project directory, run:
 <ol>
   <li>Sign up at https://wandb.ai/site and log in</li>
   <li>Find your API-key at https://wandb.ai/authorize </li>
-  <li>In your conda environment, run <code> wandb login </code> and provide API-key </li>
+  <li>With your conda environment activated, run <code> wandb login </code> and provide API-key </li>
 </ol> 
 
 ## Train model on demonstration data :
