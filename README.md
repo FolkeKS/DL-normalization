@@ -27,4 +27,4 @@ From project directory, run:
 
 ### Using SLURM
 
-<code> sbatch scripts/train.sh </code> 
+<code> sbatch scripts/train.bash </code> 
