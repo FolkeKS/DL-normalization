@@ -256,7 +256,16 @@ class Unet(pl.LightningModule):
         if self.loss_fn=="masked_mse": 
             loss = masked_mse(y_hat, y)
         elif self.loss_fn=="masked_mape": 
+            idx = torch.nonzero(y).split(1, dim=1)
+            
+            y[idx]= (y[idx]) * (self.norm_max-self.norm_min) +self.norm_min
+            y_hat = (y_hat) * (self.norm_max-self.norm_min) +self.norm_min
+            
             loss = masked_mape(y_hat, y)
+            
+            y[idx]= (y[idx] - self.norm_min) / (self.norm_max-self.norm_min) 
+            y_hat = (y_hat - self.norm_min) / (self.norm_max-self.norm_min) 
+            
         elif self.loss_fn=="masked_relative_squarediff":
             loss = masked_relative_squarediff(y_hat, y)
         else:
