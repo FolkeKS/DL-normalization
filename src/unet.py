@@ -248,6 +248,8 @@ class Unet(pl.LightningModule):
             loss = masked_mse(y_hat, y)
         elif self.loss_fn=="masked_mape": 
             loss = masked_mape(y_hat, y)
+        elif self.loss_fn=="masked_relative_squarediff":
+            loss = masked_relative_squarediff(y_hat, y)
         else:
             raise NotImplementedError(self.loss_fn + " not implemented")
             
