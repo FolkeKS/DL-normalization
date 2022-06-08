@@ -54,6 +54,22 @@ def masked_relative_error(inputs, targets):
     masked_mean_abs = torch.sum(torch.abs(masked_rel_error)) / torch.sum(mask_true)
     masked_max = torch.max(torch.abs(masked_rel_error))
     return masked_mean_abs,masked_max
+def masked_mape(inputs, targets):
+    
+    _,_,H,W = inputs.shape
+    
+    #crop targets in case they are padded
+    targets=transforms.CenterCrop([H,W])(targets)
+    assert W==360, f"W = {W}"
+    
+    #mask defined where target equals zero
+    mask_true = (~targets.eq(0.)).to(torch.float32)
+    masked_rel_error = torch.flatten(mask_true) * (torch.div(torch.abs(torch.flatten(inputs)
+                                                             - torch.flatten(targets)),
+                                                             torch.flatten(targets)+1e-12))
+                                                        
+    masked_mean_rel = torch.sum(masked_rel_error) / torch.sum(mask_true)
+    return masked_mean_rel
 
 class Unet(pl.LightningModule):
     def __init__(self, data_dir:str="flat_polecontinent3",
@@ -199,8 +215,16 @@ class Unet(pl.LightningModule):
             W=360
             y_hat=transforms.CenterCrop([H,W])(y_hat)
             
-        loss = masked_mse(y_hat, y) 
-        
+            
+        #Calculate loss function
+        if self.loss_fn=="masked_mse": 
+            loss = masked_mse(y_hat, y)
+        elif self.loss_fn=="masked_mape": 
+            loss = masked_mape(y_hat, y)
+        else:
+            raise NotImplementedError(self.loss_fn + " not implemented")
+            
+            
         if self.data_transformation == "standardize":
             idx = torch.nonzero(y).split(1, dim=1)
             
