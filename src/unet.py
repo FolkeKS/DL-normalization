@@ -64,9 +64,9 @@ def masked_mape(inputs, targets):
     
     #mask defined where target equals zero
     mask_true = (~targets.eq(0.)).to(torch.float32)
-    masked_rel_error =  (torch.abs(torch.flatten(mask_true) *(torch.flatten(inputs)
-                                                             - torch.flatten(targets)))/
-                                                             torch.flatten(targets)+1e-12)
+    masked_rel_error =  torch.flatten(mask_true) *(torch.abs(torch.flatten(targets)
+                                                             - torch.flatten(inputs)/
+                                                             (torch.flatten(targets)+1e-12)))
                                                         
     masked_mean_rel = torch.sum(masked_rel_error) / torch.sum(mask_true)
     return masked_mean_rel
@@ -188,7 +188,16 @@ class Unet(pl.LightningModule):
         if self.loss_fn=="masked_mse": 
             loss = masked_mse(y_hat, y)
         elif self.loss_fn=="masked_mape": 
+            idx = torch.nonzero(y).split(1, dim=1)
+            
+            y[idx]= (y[idx]) * (self.norm_max-self.norm_min) +self.norm_min
+            y_hat = (y_hat) * (self.norm_max-self.norm_min) +self.norm_min
+            
             loss = masked_mape(y_hat, y)
+            
+            y[idx]= (y[idx] - self.norm_min) / (self.norm_max-self.norm_min) 
+            y_hat = (y_hat - self.norm_min) / (self.norm_max-self.norm_min) 
+            
         elif self.loss_fn=="masked_relative_squarediff":
             loss = masked_relative_squarediff(y_hat, y)
         else:
