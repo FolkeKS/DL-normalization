@@ -71,6 +71,23 @@ def masked_mape(inputs, targets):
     masked_mean_rel = torch.sum(masked_rel_error) / torch.sum(mask_true)
     return masked_mean_rel
 
+
+def masked_relative_squarediff(inputs, targets):
+    _,_,H,W = inputs.shape
+    
+    #crop targets in case they are padded
+    targets=transforms.CenterCrop([H,W])(targets)
+    assert W==360, f"W = {W}"
+    
+    #mask defined where target equals zero
+    mask_true = (~targets.eq(0.)).to(torch.float32)
+    masked_rel_error = torch.flatten(mask_true) * (torch.div(torch.square(torch.flatten(inputs)
+                                                             - torch.flatten(targets)),
+                                                             torch.square(torch.flatten(targets))+1e-12))
+                                                        
+    masked_mean_rel = torch.sum(masked_rel_error) / torch.sum(mask_true)
+    return masked_mean_rel
+
 class Unet(pl.LightningModule):
     def __init__(self, data_dir:str="flat_polecontinent3",
                  n_channels: int =2,n_classes:int=1, loss_fn:str="masked_mse",
@@ -112,6 +129,7 @@ class Unet(pl.LightningModule):
         self.predict_inverse = predict_inverse
         self.data_transformation = data_transformation
         self.data_dir = data_dir
+        self.loss_fn = loss_fn
         
         if data_transformation == "standardize":
             
@@ -166,8 +184,17 @@ class Unet(pl.LightningModule):
             W=360
             y_hat=transforms.CenterCrop([H,W])(y_hat)
 
-            
-        loss = masked_mse(y_hat, y)
+        #Calculate loss function
+        if self.loss_fn=="masked_mse": 
+            loss = masked_mse(y_hat, y)
+        elif self.loss_fn=="masked_mape": 
+            loss = masked_mape(y_hat, y)
+        elif self.loss_fn=="masked_relative_squarediff": 
+            loss = masked_relative_squarediff(y_hat, y)
+        else:
+            raise NotImplementedError(self.loss_fn + " not implemented")   
+        
+        
         
         if self.data_transformation == "standardize":
             idx = torch.nonzero(y).split(1, dim=1)
