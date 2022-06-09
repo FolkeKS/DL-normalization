@@ -300,7 +300,7 @@ class UnetSkipConnectionBlock(nn.Module):
             
 
         downconv = nn.Conv2d(input_nc, inner_nc, kernel_size=4,
-                             stride=2, padding=1, bias=use_bias)
+                             stride=2, padding=1, padding_mode="replicate",bias=use_bias)
         downrelu = nn.LeakyReLU(0.2, True)
 
         downnorm = norm_layer(inner_nc)
@@ -310,14 +310,14 @@ class UnetSkipConnectionBlock(nn.Module):
         if outermost:
             upconv = nn.ConvTranspose2d(inner_nc * 2, outer_nc,
                                         kernel_size=4, stride=2,
-                                        padding=1)
+                                        padding=1,padding_mode="replicate")
             down = [downconv]
             up = [uprelu, upconv, nn.Tanh()]
             model = down + [submodule] + up
         elif innermost:
             upconv = nn.ConvTranspose2d(inner_nc, outer_nc,
                                         kernel_size=4, stride=2,
-                                        padding=1, bias=use_bias)
+                                        padding=1,padding_mode="replicate", bias=use_bias)
             down = [downrelu, downconv]
             up = [uprelu, upconv, upnorm]
 
