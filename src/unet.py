@@ -54,39 +54,7 @@ def masked_relative_error(inputs, targets):
     masked_mean_abs = torch.sum(torch.abs(masked_rel_error)) / torch.sum(mask_true)
     masked_max = torch.max(torch.abs(masked_rel_error))
     return masked_mean_abs,masked_max
-def masked_mape(inputs, targets):
-    
-    _,_,H,W = inputs.shape
-    
-    #crop targets in case they are padded
-    targets=transforms.CenterCrop([H,W])(targets)
-    assert W==360, f"W = {W}"
-    
-    #mask defined where target equals zero
-    mask_true = (~targets.eq(0.)).to(torch.float32)
-    masked_rel_error =  (torch.abs(torch.flatten(mask_true) *(torch.flatten(inputs)
-                                                             - torch.flatten(targets)))/
-                                                             torch.flatten(targets)+1e-12)
-                                                        
-    masked_mean_rel = torch.sum(masked_rel_error) / torch.sum(mask_true)
-    return masked_mean_rel
 
-
-def masked_relative_squarediff(inputs, targets):
-    _,_,H,W = inputs.shape
-    
-    #crop targets in case they are padded
-    targets=transforms.CenterCrop([H,W])(targets)
-    assert W==360, f"W = {W}"
-    
-    #mask defined where target equals zero
-    mask_true = (~targets.eq(0.)).to(torch.float32)
-    masked_rel_error =  (torch.div(torch.square(torch.flatten(mask_true) *(torch.flatten(inputs)
-                                                             - torch.flatten(targets))),
-                                                             torch.square(torch.flatten(targets))+1e-12))
-                                                        
-    masked_mean_rel = torch.sum(masked_rel_error) / torch.sum(mask_true)
-    return masked_mean_rel
 
 class Unet(pl.LightningModule):
     def __init__(self, data_dir:str="flat_polecontinent3",
@@ -187,10 +155,7 @@ class Unet(pl.LightningModule):
         #Calculate loss
         if self.loss_fn=="masked_mse": 
             loss = masked_mse(y_hat, y)
-        elif self.loss_fn=="masked_mape": 
-            loss = masked_mape(y_hat, y)
-        elif self.loss_fn=="masked_relative_squarediff":
-            loss = masked_relative_squarediff(y_hat, y)
+
         else:
             raise NotImplementedError(self.loss_fn + " not implemented")   
         
@@ -243,11 +208,10 @@ class Unet(pl.LightningModule):
             y_hat=transforms.CenterCrop([H,W])(y_hat)
             
             
-        #Calculate loss function
+        #Calculate loss
         if self.loss_fn=="masked_mse": 
             loss = masked_mse(y_hat, y)
-        elif self.loss_fn=="masked_mape": 
-            loss = masked_mape(y_hat, y)
+
         else:
             raise NotImplementedError(self.loss_fn + " not implemented")
             
