@@ -45,14 +45,14 @@ def masked_relative_error(inputs, targets,q=None):
     targets=transforms.CenterCrop([H,W])(targets)
     assert W==360, f"W = {W}"
     #mask is true where normalization coefficients equals zero
-    mask_true = (~targets.eq(0.)).to(torch.float32)
+    mask_true = (~targets.eq(0.)).to(torch.uint8)
     
     
     masked_abs_rel_error = torch.flatten(mask_true) * torch.abs((torch.flatten(targets) - 
                                                        torch.flatten(inputs))/torch.flatten(targets+1e-12) )
     q_res=torch.zeros(1)
     if q is not None:
-        q_res = torch.quantile(masked_abs_rel_error,q)
+        q_res = torch.quantile(masked_abs_rel_error[torch.flatten(mask_true)],q)
     masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
     masked_max = torch.max(masked_abs_rel_error)
     return masked_mean_abs,masked_max,q_res
