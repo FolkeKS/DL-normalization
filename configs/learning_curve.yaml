@@ -102,6 +102,8 @@ model:
   data_transformation: standardize
   norm_layer: Batch
   data_dir: data/processed/isotropic_noise100_samples_standardize/
+  loss_fn: masked_mse
+  q: 0.95
 data:
   batch_size: 10
   data_dir: data/processed/isotropic_noise100_samples_standardize/

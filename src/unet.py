@@ -38,7 +38,7 @@ def masked_mse(inputs, targets):
     masked_mse = torch.sum(masked_squared_error) / torch.sum(mask_true)
     return masked_mse
 
-def masked_relative_error(inputs, targets):
+def masked_relative_error(inputs, targets,q=None):
     _,_,H,W = inputs.shape
     
     #crop targets in case they are padded
@@ -48,12 +48,15 @@ def masked_relative_error(inputs, targets):
     mask_true = (~targets.eq(0.)).to(torch.float32)
     
     
-    masked_rel_error = torch.flatten(mask_true) * (torch.flatten(targets) - 
-                                                       torch.flatten(inputs))/torch.flatten(targets+1e-12) 
-                                                        
-    masked_mean_abs = torch.sum(torch.abs(masked_rel_error)) / torch.sum(mask_true)
-    masked_max = torch.max(torch.abs(masked_rel_error))
-    return masked_mean_abs,masked_max
+    masked_abs_rel_error = torch.flatten(mask_true) * torch.abs((torch.flatten(targets) - 
+                                                       torch.flatten(inputs))/torch.flatten(targets+1e-12) )
+    q_res=torch.zeros(1)
+    if q is not None:
+        q_res = torch.quantile(masked_abs_rel_error,q)
+    masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
+    masked_max = torch.max(masked_abs_rel_error)
+    return masked_mean_abs,masked_max,q_res
+    
 
 
 class Unet(pl.LightningModule):
@@ -61,7 +64,7 @@ class Unet(pl.LightningModule):
                  n_channels: int =2,n_classes:int=1, loss_fn:str="masked_mse",
                  depth:int=5,depth_0_filters:int=64,final_layer_filters:int=5,
                  predict_squared: bool=False, predict_inverse: bool = False, 
-                 optimizer:str="Adam",
+                 optimizer:str="Adam", q:float=0.95,
                  data_transformation: str="standardize", norm_layer:str="Batch",
                  ):
         """
@@ -98,6 +101,7 @@ class Unet(pl.LightningModule):
         self.data_transformation = data_transformation
         self.data_dir = data_dir
         self.loss_fn = loss_fn
+        self.q = q
         
         if data_transformation == "standardize":
             
@@ -185,19 +189,20 @@ class Unet(pl.LightningModule):
             if self.predict_inverse == True:
                 rel_mean,rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean,rel_max = masked_relative_error(y_hat**2, y**2)
+                rel_mean,rel_max,q_res = masked_relative_error(y_hat**2, y**2,self.q)
 
-        return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max}
+        return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max, 'rel_'+str(self.q) +'_quantile': q_res}
     
     def training_epoch_end(self, outputs):
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
         avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
-        avg_max = torch.stack([x['rel_max'] for x in outputs]).mean()
+        max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
+        avg_q = torch.stack([x['rel_'+str(self.q) +'_quantile'] for x in outputs]).mean()
         
         self.log("train_loss", avg_loss)
         self.log("train_mean", avg_mean)
-        self.log("train_max", avg_max)
-
+        self.log("train_max", max_rel)
+        self.log('train_'+str(self.q) +'_quantile', avg_q)
 
     def validation_step(self, batch, batch_nb):
         x, y = batch
@@ -240,20 +245,21 @@ class Unet(pl.LightningModule):
             if self.predict_inverse == True:
                 rel_mean,rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean,rel_max = masked_relative_error(y_hat**2, y**2)
+                rel_mean,rel_max,q_res = masked_relative_error(y_hat**2, y**2,self.q)
 
-        return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max}
+        return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max,'rel_'+str(self.q) +"_quantile": q_res}
 
     def validation_epoch_end(self, outputs):
         
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
         avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
-        avg_max = torch.stack([x['rel_max'] for x in outputs]).mean()
-
+        max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
+        avg_q = torch.stack([x['rel_'+str(self.q) +'_quantile'] for x in outputs]).mean()
+        
         self.log("val_loss", avg_loss)
         self.log("val_mean", avg_mean)
-        self.log("val_max", avg_max)
-
+        self.log("val_max", max_rel)
+        self.log('val_'+str(self.q) +'_quantile', avg_q)
 
     def configure_optimizers(self):
         #print(self.parameters())
