@@ -2,6 +2,7 @@ README.md
 setup.py
 src/Unet.py
 src/__init__.py
+src/cnn.py
 src/features.py
 src/unet.py
 src.egg-info/PKG-INFO

@@ -13,12 +13,15 @@ import numpy as np
 import torch
 
 from src.unet import Unet
-from pytorch_lightning import Trainer,seed_everything
+#from src.cnn import CNN
+import src.cnn as cn
+from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.utilities.cli import LightningCLI
-from pytorch_lightning.loggers import TensorBoardLogger,WandbLogger
+from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
 from src.data.dataset import DirLightDataset
 import torch.multiprocessing
+import importlib
 
-
-trainer = LightningCLI(Unet,DirLightDataset,save_config_callback=None)
+importlib.reload(cn)
+trainer = LightningCLI(cn.CNN, DirLightDataset, save_config_callback=None)
