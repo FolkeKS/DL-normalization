@@ -97,4 +97,4 @@ class CNN(pl.LightningModule):
         tools.epoch_end(self, outputs, "val")
 
     def configure_optimizers(self):
-       return tools.configure_optimizers
+       return tools.configure_optimizers(self)

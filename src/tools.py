@@ -7,13 +7,12 @@ Created on Mon Jun 27 10:02:24 2022
 """
 import torch
 import torchvision.transforms as transforms
-
+import numpy as np
 
 def masked_mse(inputs, targets):
     _, _, H, W = inputs.shape
-
     # crop targets in case they are padded
-    #targets = transforms.CenterCrop([H, W])(targets)
+    targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
 
     # mask defined where target equals zero
@@ -26,9 +25,8 @@ def masked_mse(inputs, targets):
 
 def masked_relative_error(inputs, targets, q=None):
     _, _, H, W = inputs.shape
-
     # crop targets in case they are padded
-    #targets = transforms.CenterCrop([H, W])(targets)
+    targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
     # mask is true where normalization coefficients equals zero
     mask_true = (~targets.eq(0.)).to(torch.uint8)
@@ -42,8 +40,8 @@ def masked_relative_error(inputs, targets, q=None):
     masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
     masked_max = torch.max(masked_abs_rel_error)
 
-    masked_squared_rel_error = torch.flatten(mask_true) * torch.abs((torch.pow(torch.flatten(targets),2) -
-                                                                 torch.pow(torch.flatten(inputs)),2)/torch.pow(torch.flatten(targets+1e-12)),2)
+    masked_squared_rel_error = torch.flatten(mask_true) * torch.pow(torch.flatten(targets) -
+                                                                  torch.flatten(inputs),2)/torch.pow(torch.flatten(targets+1e-12),2)
 
     rmse = torch.sqrt(torch.mean(masked_squared_rel_error))
     return masked_mean_abs, masked_max, q_res, rmse
@@ -83,7 +81,6 @@ def transform_crop(y):
 def step(self, batch):
         x, y = batch
         y_hat = transform_crop(self.forward(x))
-
         # Calculate loss
         if self.loss_fn == "masked_mse":
             loss = masked_mse(y_hat, y)
@@ -92,20 +89,15 @@ def step(self, batch):
 
         if self.standarize_outputs:
             idx = torch.nonzero(y).split(1, dim=1)
-
             y[idx] = y[idx]*self.norm_std + self.norm_mean
             y_hat = y_hat*self.norm_std + self.norm_mean
 
-        if self.predict_squared == True:
-            if self.predict_inverse == True:
-                rel_mean, rel_max, q_res, rmse = masked_relative_error(1/y_hat, 1/y**2, self.q)
-            elif self.predict_inverse == False:
-                rel_mean, rel_max, q_res, rmse = masked_relative_error(y_hat, y**2, self.q)
-        else:
-            if self.predict_inverse == True:
-                rel_mean, rel_max, q_res, rmse = masked_relative_error(1/y_hat**2, 1/y**2, self.q)
-            elif self.predict_inverse == False:
-                rel_mean, rel_max, q_res, rmse = masked_relative_error(
+        if self.predict_inverse:
+            y_hat = 1/y_hat
+        if self.predict_squared:
+            y_hat = y_hat**2
+
+        rel_mean, rel_max, q_res, rmse = masked_relative_error(
                     y_hat**2, y**2, self.q)
 
         return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res, 'rmse':rmse}
