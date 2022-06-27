@@ -28,6 +28,8 @@ import src.tools as tools
 class CNN(pl.LightningModule):
     # image_size = 64
     def __init__(self,
+                 n_layers: int = 1,
+                 kernel_size: int = 3,
                  n_channels: int = 3,
                  n_classes: int = 1,
                  data_dir: str = "flat_polecontinent3",
@@ -41,6 +43,8 @@ class CNN(pl.LightningModule):
 
         super().__init__()
         # self.hparams = hparams
+        self.n_layers = n_layers
+        self.kernel_size = kernel_size
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.standarize_outputs = standarize_outputs
@@ -63,26 +67,22 @@ class CNN(pl.LightningModule):
         def conv(in_channels, out_channels):
             # returns a block compsed of a Convolution layer with ReLU activation function
             return nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, 3,
+                nn.Conv2d(in_channels, out_channels, kernel_size,
                           padding="same", padding_mode="replicate"),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU())
-        self.cnv1 = conv(self.n_channels, 32)
-        self.cnv2 = conv(32, 64)
-        self.cnv3 = conv(64, 64)
-        self.cnv4 = conv(64, 64)
-        self.cnv5 = conv(64, 64)
-        self.last = nn.Sequential(
-            nn.Conv2d(64, self.n_classes, 3, padding="same", padding_mode="replicate"))
+        self.layers = nn.ModuleList()
+        self.layers.append(conv(self.n_channels, 64))
+        for i in range(n_layers-1):
+            self.layers.append(conv(64, 64))
+
+        self.layers.append( nn.Sequential(
+            nn.Conv2d(64, self.n_classes, kernel_size, padding="same", padding_mode="replicate")))
 
     def forward(self, x):
-        out = self.cnv1(x)
-        out = self.cnv2(out)
-        out = self.cnv3(out)
-        out = self.cnv4(out)
-        out = self.cnv5(out)
-        out = self.last(out)
-        return out
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
     def training_step(self, batch, batch_nb):
         return tools.step(self, batch)

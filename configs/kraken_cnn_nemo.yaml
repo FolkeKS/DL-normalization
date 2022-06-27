@@ -1,4 +1,4 @@
-seed_everything: null
+seed_everything: 42
 trainer:
   logger:
     class_path: pytorch_lightning.loggers.WandbLogger
@@ -91,15 +91,19 @@ trainer:
   terminate_on_nan: null
   
 model:
+  n_layers: 10
   n_channels: 3
   n_classes: 1
-  data_dir: data/processed/nemo_perten90_samples_standardize/
+  kernel_size: 3
+  data_dir: data/processed/isotropic_noise99_samples_standardize/
   standarize_outputs: true
   optimizer: Adam
   predict_squared: false
   predict_inverse: false
   loss_fn: masked_mse
-  q: 0.9999
+  q: 0.9999 
+  data_dir: data/processed/nemo_perten90_samples_standardize/
+
 data:
   batch_size: 1
   data_dir: data/processed/nemo_perten90_samples_standardize/
