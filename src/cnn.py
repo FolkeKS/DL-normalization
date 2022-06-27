@@ -28,7 +28,6 @@ def masked_mse(inputs, targets):
     _, _, H, W = inputs.shape
 
     # crop targets in case they are padded
-    print("H :", H, "W: ", W)
     targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
 
@@ -40,22 +39,24 @@ def masked_mse(inputs, targets):
     return masked_mse
 
 
-def masked_relative_error(inputs, targets):
+def masked_relative_error(inputs, targets, q=None):
     _, _, H, W = inputs.shape
 
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert W == 360
-    # mask defined where target equals zero
-    mask_true = (~targets.eq(0.)).to(torch.float32)
+    assert W == 360, f"W = {W}"
+    # mask is true where normalization coefficients equals zero
+    mask_true = (~targets.eq(0.)).to(torch.uint8)
 
-    masked_rel_error = torch.flatten(mask_true) * (torch.flatten(targets) -
-                                                   torch.flatten(inputs))/torch.flatten(targets+1e-12)
-
-    masked_mean_abs = torch.sum(
-        torch.abs(masked_rel_error)) / torch.sum(mask_true)
-    masked_max = torch.max(torch.abs(masked_rel_error))
-    return masked_mean_abs, masked_max
+    masked_abs_rel_error = torch.flatten(mask_true) * torch.abs((torch.flatten(targets) -
+                                                                 torch.flatten(inputs))/torch.flatten(targets+1e-12))
+    q_res = torch.zeros(1)
+    if q is not None:
+        q_res = torch.quantile(
+            masked_abs_rel_error[torch.flatten(mask_true)], q)
+    masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
+    masked_max = torch.max(masked_abs_rel_error)
+    return masked_mean_abs, masked_max, q_res
 
 
 class CNN(pl.LightningModule):
@@ -68,6 +69,8 @@ class CNN(pl.LightningModule):
                  optimizer: str = "Adam",
                  predict_squared: bool = False,
                  predict_inverse: bool = False,
+                 loss_fn: str = "masked_mse",
+                 q: float = 0.95,
                  **kwargs):
 
         super().__init__()
@@ -79,15 +82,19 @@ class CNN(pl.LightningModule):
         self.optimizer = optimizer
         self.predict_squared = predict_squared
         self.predict_inverse = predict_inverse
+        self.q = q
+        self.loss_fn = loss_fn
+
         if standarize_outputs:
             f = open(data_dir+"norms_std_mean.txt")
-            assert len(f.readlines()) == 2
-
-            self.norm_std = 110439.79485414618
- # float(f.readlines()[0])
-            self.norm_mean = 525208.1680871231
-# float(f.readlines()[1])
+            lines = f.readlines()
+            assert len(lines) == 2, f"len {len(lines)}"
+            self.norm_std = float(lines[0])
+            #self.norm_std=85120.54189679536#109665.81949861716 #
+            self.norm_mean = float(lines[1])
+            #self.norm_mean=519020.8512819948#523399.02014148276#
             f.close()
+            #print("std ",self.norm_std," mean ", self.norm_mean)
 
         def conv(in_channels, out_channels):
             # returns a block compsed of a Convolution layer with ReLU activation function
@@ -99,6 +106,8 @@ class CNN(pl.LightningModule):
         self.cnv1 = conv(self.n_channels, 32)
         self.cnv2 = conv(32, 64)
         self.cnv3 = conv(64, 64)
+        self.cnv4 = conv(64, 64)
+        self.cnv5 = conv(64, 64)
         self.last = nn.Sequential(
             nn.Conv2d(64, self.n_classes, 3, padding="same", padding_mode="replicate"))
 
@@ -106,6 +115,8 @@ class CNN(pl.LightningModule):
         out = self.cnv1(x)
         out = self.cnv2(out)
         out = self.cnv3(out)
+        out = self.cnv4(out)
+        out = self.cnv5(out)
         out = self.last(out)
         return out
 
@@ -115,9 +126,16 @@ class CNN(pl.LightningModule):
         _, _, H, W = y_hat.shape
         if W > 360:
             W = 360
-            y_hat = transforms.CenterCrop([H, W])(y_hat)
+        if H > 290:
+            H = 290
 
-        loss = masked_mse(y_hat, y)
+        y_hat = transforms.CenterCrop([H, W])(y_hat)
+        # Calculate loss
+        if self.loss_fn == "masked_mse":
+            loss = masked_mse(y_hat, y)
+
+        else:
+            raise NotImplementedError(self.loss_fn + " not implemented")
 
         if self.standarize_outputs:
             idx = torch.nonzero(y).split(1, dim=1)
@@ -134,18 +152,22 @@ class CNN(pl.LightningModule):
             if self.predict_inverse == True:
                 rel_mean, rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean, rel_max = masked_relative_error(y_hat**2, y**2)
+                rel_mean, rel_max, q_res = masked_relative_error(
+                    y_hat**2, y**2, self.q)
 
-        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max}
+        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + '_quantile': q_res}
 
     def training_epoch_end(self, outputs):
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
         avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
-        avg_max = torch.stack([x['rel_max'] for x in outputs]).mean()
+        max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
+        avg_q = torch.stack([x['rel_'+str(self.q) + '_quantile']
+                            for x in outputs]).mean()
 
         self.log("train_loss", avg_loss)
         self.log("train_mean", avg_mean)
-        self.log("train_max", avg_max)
+        self.log("train_max", max_rel)
+        self.log('train_'+str(self.q) + '_quantile', avg_q)
 
     def validation_step(self, batch, batch_nb):
         x, y = batch
@@ -153,9 +175,17 @@ class CNN(pl.LightningModule):
         _, _, H, W = y_hat.shape
         if W > 360:
             W = 360
-            y_hat = transforms.CenterCrop([H, W])(y_hat)
+        if H > 290:
+            H = 290
 
-        loss = masked_mse(y_hat, y)
+        y_hat = transforms.CenterCrop([H, W])(y_hat)
+
+        # Calculate loss
+        if self.loss_fn == "masked_mse":
+            loss = masked_mse(y_hat, y)
+        else:
+            raise NotImplementedError(self.loss_fn + " not implemented")
+
         if self.standarize_outputs:
             idx = torch.nonzero(y).split(1, dim=1)
 
@@ -171,22 +201,26 @@ class CNN(pl.LightningModule):
             if self.predict_inverse == True:
                 rel_mean, rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean, rel_max = masked_relative_error(y_hat**2, y**2)
+                rel_mean, rel_max, q_res = masked_relative_error(
+                    y_hat**2, y**2, self.q)
 
-        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max}
+        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res}
 
     def validation_epoch_end(self, outputs):
 
         avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
         avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
-        avg_max = torch.stack([x['rel_max'] for x in outputs]).mean()
+        max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
+        avg_q = torch.stack([x['rel_'+str(self.q) + '_quantile']
+                            for x in outputs]).mean()
 
         self.log("val_loss", avg_loss)
         self.log("val_mean", avg_mean)
-        self.log("val_max", avg_max)
+        self.log("val_max", max_rel)
+        self.log('val_'+str(self.q) + '_quantile', avg_q)
 
     def configure_optimizers(self):
-        print(self.parameters())
+       # print(self.parameters())
         if self.optimizer == "Adamax":
             return torch.optim.Adamax(self.parameters())
         elif self.optimizer == "Adam":

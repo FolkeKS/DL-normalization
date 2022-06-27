@@ -8,5 +8,5 @@
 #SBATCH --error=results/outputs/slurm-%A.%a.err
 unset PYTHONHOME
 
-srun python scripts/trainer.py fit --config configs/kraken_demo.yaml> results/outputs/${SLURM_JOBID}.out
+srun python scripts/trainer.py fit --config configs/kraken_cnn_nemo.yaml> results/outputs/${SLURM_JOBID}.out
    
