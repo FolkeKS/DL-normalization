@@ -21,42 +21,8 @@ import torchvision.transforms as transforms
 
 import pytorch_lightning as pl
 import importlib
+import src.tools as tools
 # from dataset import DirDataset
-
-
-def masked_mse(inputs, targets):
-    _, _, H, W = inputs.shape
-
-    # crop targets in case they are padded
-    targets = transforms.CenterCrop([H, W])(targets)
-    assert W == 360, f"W = {W}"
-
-    # mask defined where target equals zero
-    mask_true = (~targets.eq(0.)).to(torch.float32)
-    masked_squared_error = torch.square(torch.flatten(
-        mask_true) * (torch.flatten(targets) - torch.flatten(inputs)))
-    masked_mse = torch.sum(masked_squared_error) / torch.sum(mask_true)
-    return masked_mse
-
-
-def masked_relative_error(inputs, targets, q=None):
-    _, _, H, W = inputs.shape
-
-    # crop targets in case they are padded
-    targets = transforms.CenterCrop([H, W])(targets)
-    assert W == 360, f"W = {W}"
-    # mask is true where normalization coefficients equals zero
-    mask_true = (~targets.eq(0.)).to(torch.uint8)
-
-    masked_abs_rel_error = torch.flatten(mask_true) * torch.abs((torch.flatten(targets) -
-                                                                 torch.flatten(inputs))/torch.flatten(targets+1e-12))
-    q_res = torch.zeros(1)
-    if q is not None:
-        q_res = torch.quantile(
-            masked_abs_rel_error[torch.flatten(mask_true)], q)
-    masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
-    masked_max = torch.max(masked_abs_rel_error)
-    return masked_mean_abs, masked_max, q_res
 
 
 class CNN(pl.LightningModule):
@@ -90,9 +56,7 @@ class CNN(pl.LightningModule):
             lines = f.readlines()
             assert len(lines) == 2, f"len {len(lines)}"
             self.norm_std = float(lines[0])
-            #self.norm_std=85120.54189679536#109665.81949861716 #
             self.norm_mean = float(lines[1])
-            #self.norm_mean=519020.8512819948#523399.02014148276#
             f.close()
             #print("std ",self.norm_std," mean ", self.norm_mean)
 
@@ -121,111 +85,16 @@ class CNN(pl.LightningModule):
         return out
 
     def training_step(self, batch, batch_nb):
-        x, y = batch
-        y_hat = self.forward(x)
-        _, _, H, W = y_hat.shape
-        if W > 360:
-            W = 360
-        if H > 290:
-            H = 290
-
-        y_hat = transforms.CenterCrop([H, W])(y_hat)
-        # Calculate loss
-        if self.loss_fn == "masked_mse":
-            loss = masked_mse(y_hat, y)
-
-        else:
-            raise NotImplementedError(self.loss_fn + " not implemented")
-
-        if self.standarize_outputs:
-            idx = torch.nonzero(y).split(1, dim=1)
-
-            y[idx] = y[idx] * self.norm_std + self.norm_mean
-            y_hat = y_hat * self.norm_std + self.norm_mean
-
-        if self.predict_squared == True:
-            if self.predict_inverse == True:
-                rel_mean, rel_max = masked_relative_error(1/y_hat, 1/y**2)
-            elif self.predict_inverse == False:
-                rel_mean, rel_max = masked_relative_error(y_hat, y**2)
-        else:
-            if self.predict_inverse == True:
-                rel_mean, rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
-            elif self.predict_inverse == False:
-                rel_mean, rel_max, q_res = masked_relative_error(
-                    y_hat**2, y**2, self.q)
-
-        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + '_quantile': q_res}
+        return tools.step(self, batch)
 
     def training_epoch_end(self, outputs):
-        avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
-        avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
-        max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
-        avg_q = torch.stack([x['rel_'+str(self.q) + '_quantile']
-                            for x in outputs]).mean()
-
-        self.log("train_loss", avg_loss)
-        self.log("train_mean", avg_mean)
-        self.log("train_max", max_rel)
-        self.log('train_'+str(self.q) + '_quantile', avg_q)
+        tools.epoch_end(self, outputs, "train")
 
     def validation_step(self, batch, batch_nb):
-        x, y = batch
-        y_hat = self.forward(x)
-        _, _, H, W = y_hat.shape
-        if W > 360:
-            W = 360
-        if H > 290:
-            H = 290
-
-        y_hat = transforms.CenterCrop([H, W])(y_hat)
-
-        # Calculate loss
-        if self.loss_fn == "masked_mse":
-            loss = masked_mse(y_hat, y)
-        else:
-            raise NotImplementedError(self.loss_fn + " not implemented")
-
-        if self.standarize_outputs:
-            idx = torch.nonzero(y).split(1, dim=1)
-
-            y[idx] = y[idx]*self.norm_std + self.norm_mean
-            y_hat = y_hat*self.norm_std + self.norm_mean
-
-        if self.predict_squared == True:
-            if self.predict_inverse == True:
-                rel_mean, rel_max = masked_relative_error(1/y_hat, 1/y**2)
-            elif self.predict_inverse == False:
-                rel_mean, rel_max = masked_relative_error(y_hat, y**2)
-        else:
-            if self.predict_inverse == True:
-                rel_mean, rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
-            elif self.predict_inverse == False:
-                rel_mean, rel_max, q_res = masked_relative_error(
-                    y_hat**2, y**2, self.q)
-
-        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res}
+        return tools.step(self, batch)
 
     def validation_epoch_end(self, outputs):
-
-        avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
-        avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
-        max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
-        avg_q = torch.stack([x['rel_'+str(self.q) + '_quantile']
-                            for x in outputs]).mean()
-
-        self.log("val_loss", avg_loss)
-        self.log("val_mean", avg_mean)
-        self.log("val_max", max_rel)
-        self.log('val_'+str(self.q) + '_quantile', avg_q)
+        tools.epoch_end(self, outputs, "val")
 
     def configure_optimizers(self):
-       # print(self.parameters())
-        if self.optimizer == "Adamax":
-            return torch.optim.Adamax(self.parameters())
-        elif self.optimizer == "Adam":
-            print(self.parameters, self.hparams)
-            return torch.optim.Adam(self.parameters())
-        else:
-            raise NotImplementedError(
-                "Optimizer not implemented (available: Adam, Adamax)")
+       return tools.configure_optimizers

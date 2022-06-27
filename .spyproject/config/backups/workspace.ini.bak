@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['src/cnn.py', 'src/data/unet.py', 'configs/cnn.yaml', 'scripts/trainer.py', 'src/data/dataset.py', 'configs/demo.yaml']
+recent_files = ['src/data/unet.py', 'src/cnn.py', 'src/metrics.py']
 
 [main]
 version = 0.2.0

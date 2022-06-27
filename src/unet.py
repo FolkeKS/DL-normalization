@@ -24,40 +24,7 @@ import functools
 import pytorch_lightning as pl
 from src.data.dataset import DirDataset
 import linecache
-
-def masked_mse(inputs, targets):
-    _,_,H,W = inputs.shape
-    
-    #crop targets in case they are padded
-    targets=transforms.CenterCrop([H,W])(targets)
-    assert W==360, f"W = {W}"
-    
-    #mask defined where target equals zero
-    mask_true = (~targets.eq(0.)).to(torch.float32)
-    masked_squared_error = torch.square(torch.flatten(mask_true) * (torch.flatten(targets) - torch.flatten(inputs)))
-    masked_mse = torch.sum(masked_squared_error) / torch.sum(mask_true)
-    return masked_mse
-
-def masked_relative_error(inputs, targets,q=None):
-    _,_,H,W = inputs.shape
-    
-    #crop targets in case they are padded
-    targets=transforms.CenterCrop([H,W])(targets)
-    assert W==360, f"W = {W}"
-    #mask is true where normalization coefficients equals zero
-    mask_true = (~targets.eq(0.)).to(torch.uint8)
-    
-    
-    masked_abs_rel_error = torch.flatten(mask_true) * torch.abs((torch.flatten(targets) - 
-                                                       torch.flatten(inputs))/torch.flatten(targets+1e-12) )
-    q_res=torch.zeros(1)
-    if q is not None:
-        q_res = torch.quantile(masked_abs_rel_error[torch.flatten(mask_true)],q)
-    masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
-    masked_max = torch.max(masked_abs_rel_error)
-    return masked_mean_abs,masked_max,q_res
-    
-
+import src.tools as tools
 
 class Unet(pl.LightningModule):
     def __init__(self, data_dir:str="flat_polecontinent3",
@@ -158,7 +125,7 @@ class Unet(pl.LightningModule):
 
         #Calculate loss
         if self.loss_fn=="masked_mse": 
-            loss = masked_mse(y_hat, y)
+            loss = tools.masked_mse(y_hat, y)
 
         else:
             raise NotImplementedError(self.loss_fn + " not implemented")   
@@ -182,14 +149,14 @@ class Unet(pl.LightningModule):
             
         if self.predict_squared == True:
             if self.predict_inverse == True:
-                rel_mean,rel_max = masked_relative_error(1/y_hat, 1/y**2)
+                rel_mean,rel_max = tools.masked_relative_error(1/y_hat, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean,rel_max = masked_relative_error(y_hat, y**2)
+                rel_mean,rel_max = tools.masked_relative_error(y_hat, y**2)
         else:
             if self.predict_inverse == True:
-                rel_mean,rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
+                rel_mean,rel_max = tools.masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean,rel_max,q_res = masked_relative_error(y_hat**2, y**2,self.q)
+                rel_mean,rel_max,q_res = tools.masked_relative_error(y_hat**2, y**2,self.q)
 
         return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max, 'rel_'+str(self.q) +'_quantile': q_res}
     
@@ -215,7 +182,7 @@ class Unet(pl.LightningModule):
             
         #Calculate loss
         if self.loss_fn=="masked_mse": 
-            loss = masked_mse(y_hat, y)
+            loss = tools.masked_mse(y_hat, y)
 
         else:
             raise NotImplementedError(self.loss_fn + " not implemented")
@@ -238,14 +205,14 @@ class Unet(pl.LightningModule):
             
         if self.predict_squared == True:
             if self.predict_inverse == True:
-                rel_mean,rel_max = masked_relative_error(1/y_hat, 1/y**2)
+                rel_mean,rel_max = tools.masked_relative_error(1/y_hat, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean,rel_max = masked_relative_error(y_hat, y**2)
+                rel_mean,rel_max = tools.masked_relative_error(y_hat, y**2)
         else:
             if self.predict_inverse == True:
-                rel_mean,rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
+                rel_mean,rel_max = tools.masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
-                rel_mean,rel_max,q_res = masked_relative_error(y_hat**2, y**2,self.q)
+                rel_mean,rel_max,q_res = tools.masked_relative_error(y_hat**2, y**2,self.q)
 
         return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max,'rel_'+str(self.q) +"_quantile": q_res}
 
