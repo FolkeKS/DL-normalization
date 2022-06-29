@@ -12,6 +12,7 @@ import src.cnn as cnn
 import scipy.ndimage.morphology as scm
 import importlib
 import matplotlib.ticker as mtick
+from torchinfo import summary
 importlib.reload(dsp)
 
 
@@ -21,7 +22,7 @@ class Plots:
         self.model = model_path
         self.data_path = data_path
         if model_arch == "cnn":
-            self.model=cnn.CNN.load_from_checkpoint(model_path)
+            self.model=cnn.CNN.load_from_checkpoint(model_path, strict=False)
         elif model_arch == "unet":
             self.model=unet.Unet.load_from_checkpoint(model_path)
         else :
@@ -98,3 +99,9 @@ class Plots:
         print("mean: ",np.mean(np.ma.masked_array(np.sum((eps - np.mean(eps,axis=0))**2, axis=0)/10, mask)))
         print("max:  ",np.max(np.ma.masked_array(np.sum((eps - np.mean(eps,axis=0))**2, axis=0)/10, mask)) )
         print("min:  ",np.min(np.ma.masked_array(np.sum((eps - np.mean(eps,axis=0))**2, axis=0)/10, mask)) )
+
+
+        
+    def summary(self, batch_size:int = 1):
+        print(summary(self.model, input_size=(batch_size, 3, 290, 360)))
+        

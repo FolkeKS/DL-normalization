@@ -28,3 +28,7 @@ From project directory, run:
 ### Using SLURM
 
 <code> sbatch scripts/train.bash </code> 
+
+## Wandb sweep for hyperparameter tuning
+
+<code> wandb sweep configs/cnn_sweep.yaml</code>

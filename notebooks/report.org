@@ -44,11 +44,17 @@
 
 * Plots
 
-*  Python Stuff
-  :PROPERTIES:
-  :header-args:    :python /Users/coulaud/opt/anaconda3/bin/python :session One :results output :exports both
-  :END:
-Now we can simply work with code as we normally would
-#+BEGIN_SRC python
-print("Hello World")
-#+END_SRC
+* TODO add python plots
+
+#+begin_src python :session :results value
+import random
+if random.randint(0,10) % 2 == 0:
+    ret = "even"
+else:
+    ret = "odd"
+ret
+#+end_src
+
+#+RESULTS:
+
+

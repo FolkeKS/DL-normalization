@@ -104,7 +104,7 @@ model:
   q: 0.9999
 
 data:
-  batch_size: 1
+  batch_size: 16
   data_dir: data/processed/isotropic_noise99_samples_standardize/
   num_workers: 0
   gpus: 0

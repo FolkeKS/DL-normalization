@@ -28,7 +28,7 @@ import src.tools as tools
 class CNN(pl.LightningModule):
     # image_size = 64
     def __init__(self,
-                 n_layers: int = 1,
+                 n_layers: int = 10,
                  kernel_size: int = 3,
                  n_channels: int = 3,
                  n_classes: int = 1,
@@ -71,18 +71,18 @@ class CNN(pl.LightningModule):
                           padding="same", padding_mode="replicate"),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU())
-        self.layers = nn.ModuleList()
-        self.layers.append(conv(self.n_channels, 64))
-        for i in range(n_layers-1):
-            self.layers.append(conv(64, 64))
-
-        self.layers.append( nn.Sequential(
-            nn.Conv2d(64, self.n_classes, kernel_size, padding="same", padding_mode="replicate")))
+        self.cnv1 = conv(self.n_channels, 32)
+        self.cnv2 = conv(32, 64)
+        self.cnv3 = conv(64, 64)
+        self.last = nn.Sequential(
+            nn.Conv2d(64, self.n_classes, 3, padding="same", padding_mode="replicate"))
 
     def forward(self, x):
-        for layer in self.layers:
-            x = layer(x)
-        return x
+        out = self.cnv1(x)
+        out = self.cnv2(out)
+        out = self.cnv3(out)
+        out = self.last(out)
+        return out
 
     def training_step(self, batch, batch_nb):
         return tools.step(self, batch)

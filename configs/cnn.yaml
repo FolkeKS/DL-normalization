@@ -52,7 +52,7 @@ trainer:
   check_val_every_n_epoch: 1
   fast_dev_run: false
   accumulate_grad_batches: null
-  max_epochs: 100
+  max_epochs: 1000
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -95,7 +95,7 @@ model:
   n_channels: 3
   n_classes: 1
   kernel_size: 3
-  data_dir: data/processed/isotropic_noise99_samples_standardize/
+  data_dir: data/processed/demo_isotropic_noise3_samples_standardize/
   standarize_outputs: true
   optimizer: Adam
   predict_squared: false

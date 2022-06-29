@@ -2,3 +2,5 @@
 *.pyc
 data/*
 src.egg-info
+wandb/*
+wandb/debug-*

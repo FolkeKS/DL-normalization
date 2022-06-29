@@ -1,0 +1,18 @@
+program: scripts/trainer.py
+method: grid
+project: tuning
+metric:
+  goal: minimize
+  name: val_loss
+parameters:
+  data.batch_size:
+    values: [8,16,32]
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - fit
+  - --config
+  - configs/cnn.yaml
+  - ${args}

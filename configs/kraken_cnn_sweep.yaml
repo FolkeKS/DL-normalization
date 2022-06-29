@@ -1,0 +1,18 @@
+program: scripts/trainer.py
+method: grid
+project: tuning
+metric:
+  goal: minimize
+  name: val_loss
+parameters:
+  model.n_layers:
+    values: [5, 10, 15, 20]
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - fit
+  - --config
+  - configs/kraken_cnn.yaml
+  - ${args}
