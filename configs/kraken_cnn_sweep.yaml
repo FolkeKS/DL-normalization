@@ -5,17 +5,21 @@ metric:
   goal: minimize
   name: val_loss
 parameters:
-  data.batch_size:
-    values: [8,16,32]
+  model.n_layers:
+    values: [5,10,15,20]
 
 command:
-  - setup.bash
   - srun
+  - --partition=gpu
+  - --nodes=1
+  - --ntasks-per-node=1
+  - --job-name=train_net
+  - --time=12:00:00
+  - --output=results/outputs/slurm-%A.%a.out
+  - --error=results/outputs/slurm-%A.%a.err
   - python
   - ${program}
   - fit
   - --config
   - configs/kraken_cnn_nemo.yaml
   - ${args}
-  - > 
-  - results/outputs/${SLURM_JOBID}.out
