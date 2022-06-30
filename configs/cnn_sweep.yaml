@@ -5,8 +5,8 @@ metric:
   goal: minimize
   name: val_loss
 parameters:
-  data.batch_size:
-    values: [8,16,32]
+  model.n_hidden_layers:
+    values: [5,10,15]
 
 command:
   - ${env}

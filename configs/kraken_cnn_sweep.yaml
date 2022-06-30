@@ -5,7 +5,7 @@ metric:
   goal: minimize
   name: val_loss
 parameters:
-  model.n_layers:
+  model.n_hidden_layers:
     values: [5,10,15,20]
 
 command:

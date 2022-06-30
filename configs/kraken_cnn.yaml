@@ -91,7 +91,7 @@ trainer:
   terminate_on_nan: null
   
 model:
-  n_layers: 10
+  n_hidden_layers: 10
   n_channels: 3
   n_classes: 1
   kernel_size: 3

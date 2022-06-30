@@ -43,7 +43,7 @@ def masked_relative_error(inputs, targets, q=None):
     masked_squared_rel_error = torch.flatten(mask_true) * torch.pow(torch.flatten(targets) -
                                                                   torch.flatten(inputs),2)/torch.pow(torch.flatten(targets+1e-12),2)
 
-    rmse = torch.sqrt(torch.mean(masked_squared_rel_error))
+    rmse = torch.sqrt(torch.sum(masked_squared_rel_error) / torch.sum(mask_true))
     return masked_mean_abs, masked_max, q_res, rmse
 
 

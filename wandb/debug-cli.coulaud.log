@@ -1,0 +1,332 @@
+2022-06-29 13:27:44 INFO Running runs: []
+2022-06-29 13:27:45 INFO Agent received command: run
+2022-06-29 13:27:45 INFO Agent starting run with config:
+	model.n_layers: 15
+2022-06-29 13:27:45 INFO About to run command: srun --partition=gpu --nodes=1 --ntasks-per-node=2 --job-name=train_net --time=12:00:00 --output=results/outputs/slurm-%A.%a.out --error=results/outputs/slurm-%A.%a.err python scripts/trainer.py fit --config configs/kraken_cnn_nemo.yaml --model.n_layers=15
+2022-06-29 13:27:45 ERROR Exception while processing command: {'run_id': 'gcgcx5q0', 'program': 'scripts/trainer.py', 'type': 'run', 'args': {'model.n_layers': {'value': 15}}, 'runqueue_item_id': 'UnVuUXVldWVJdGVtOjEyMTY4ODI2NQ==', 'logs': [], 'run_storage_id': 'UnVuOnYxOmdjZ2N4NXEwOnR1bmluZzpub3JtYWxpc2F0aW9uX2ludGVybnNoaXA='}
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 299, in _process_command
+    result = self._command_run(command)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 443, in _command_run
+    proc = AgentProcess(command=command_list, env=env)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 46, in __init__
+    self._popen = subprocess.Popen(command, env=env, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/subprocess.py", line 1821, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'srun'
+2022-06-29 13:27:50 INFO Agent received command: run
+2022-06-29 13:27:50 INFO Agent starting run with config:
+	model.n_layers: 20
+2022-06-29 13:27:50 INFO About to run command: srun --partition=gpu --nodes=1 --ntasks-per-node=2 --job-name=train_net --time=12:00:00 --output=results/outputs/slurm-%A.%a.out --error=results/outputs/slurm-%A.%a.err python scripts/trainer.py fit --config configs/kraken_cnn_nemo.yaml --model.n_layers=20
+2022-06-29 13:27:50 ERROR Exception while processing command: {'run_id': '3dwpyv8d', 'program': 'scripts/trainer.py', 'type': 'run', 'args': {'model.n_layers': {'value': 20}}, 'runqueue_item_id': 'UnVuUXVldWVJdGVtOjEyMTY4ODI2Ng==', 'logs': [], 'run_storage_id': 'UnVuOnYxOjNkd3B5djhkOnR1bmluZzpub3JtYWxpc2F0aW9uX2ludGVybnNoaXA='}
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 299, in _process_command
+    result = self._command_run(command)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 443, in _command_run
+    proc = AgentProcess(command=command_list, env=env)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 46, in __init__
+    self._popen = subprocess.Popen(command, env=env, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/subprocess.py", line 1821, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'srun'
+2022-06-29 15:08:54 ERROR 400 response executing GraphQL.
+2022-06-29 15:08:54 ERROR {"errors":[{"message":"entityName required for project query","path":["project"]}],"data":{"project":null}}
+2022-06-29 15:08:54 ERROR Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/apis/normalize.py", line 22, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 571, in sweep
+    response = self.gql(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 102, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 140, in execute
+    return self.client.execute(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 39, in execute
+    request.raise_for_status()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/models.py", line 960, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.wandb.ai/graphql
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/cli/cli.py", line 95, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/cli/cli.py", line 1205, in agent
+    wandb_agent.agent(sweep_id, entity=entity, project=project, count=count)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 606, in agent
+    return run_agent(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 548, in run_agent
+    agent.run()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/wandb_agent.py", line 181, in run
+    sweep_obj = self._api.sweep(self._sweep_id, "{}")
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/apis/internal.py", line 99, in sweep
+    return self.api.sweep(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/apis/normalize.py", line 24, in wrapper
+    raise CommError(err.response, err)
+wandb.errors.CommError: <Response [400]>
+
+2022-06-29 15:09:31 INFO Running runs: []
+2022-06-29 15:09:31 INFO Agent received command: run
+2022-06-29 15:09:31 INFO Agent starting run with config:
+	data.batch_size: 8
+	model.optimizer: Adam
+2022-06-29 15:09:31 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=8 --model.optimizer=Adam
+2022-06-29 15:09:36 INFO Running runs: ['s3afe6zq']
+2022-06-29 15:10:01 INFO Running runs: []
+2022-06-29 15:10:02 INFO Agent received command: run
+2022-06-29 15:10:02 INFO Agent starting run with config:
+	data.batch_size: 8
+	model.optimizer: Adamax
+2022-06-29 15:10:02 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=8 --model.optimizer=Adamax
+2022-06-29 15:10:07 INFO Running runs: ['ztbzz2bl']
+2022-06-29 15:10:07 INFO Running runs: []
+2022-06-29 15:10:07 INFO Agent received command: run
+2022-06-29 15:10:07 INFO Agent starting run with config:
+	data.batch_size: 16
+	model.optimizer: Adam
+2022-06-29 15:10:07 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=16 --model.optimizer=Adam
+2022-06-29 15:10:12 INFO Running runs: ['ogim74w3']
+2022-06-29 15:27:59 INFO Running runs: []
+2022-06-29 15:27:59 INFO Agent received command: run
+2022-06-29 15:27:59 INFO Agent starting run with config:
+	data.batch_size: 16
+	model.optimizer: Adamax
+2022-06-29 15:27:59 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=16 --model.optimizer=Adamax
+2022-06-29 15:28:04 INFO Running runs: ['zfnp2l82']
+2022-06-29 15:30:45 INFO Cleaning up finished run: s3afe6zq
+2022-06-29 15:30:45 INFO Agent received command: run
+2022-06-29 15:30:45 INFO Agent starting run with config:
+	data.batch_size: 32
+	model.optimizer: Adam
+2022-06-29 15:30:45 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=32 --model.optimizer=Adam
+2022-06-29 15:30:50 INFO Running runs: ['f0xzxbg0']
+2022-06-29 15:31:27 INFO Cleaning up finished run: ztbzz2bl
+2022-06-29 15:31:27 INFO Agent received command: run
+2022-06-29 15:31:27 INFO Agent starting run with config:
+	data.batch_size: 32
+	model.optimizer: Adamax
+2022-06-29 15:31:27 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=32 --model.optimizer=Adamax
+2022-06-29 15:31:31 INFO Cleaning up finished run: ogim74w3
+2022-06-29 15:31:32 INFO Agent received command: run
+2022-06-29 15:31:32 INFO Agent starting run with config:
+	data.batch_size: 64
+	model.optimizer: Adam
+2022-06-29 15:31:32 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=64 --model.optimizer=Adam
+2022-06-29 15:31:32 INFO Running runs: ['4ro5om63']
+2022-06-29 15:31:37 INFO Running runs: ['zcr1jddc']
+2022-06-29 15:50:55 INFO Cleaning up finished run: zfnp2l82
+2022-06-29 15:50:55 INFO Agent received command: run
+2022-06-29 15:50:55 INFO Agent starting run with config:
+	data.batch_size: 64
+	model.optimizer: Adamax
+2022-06-29 15:50:55 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --data.batch_size=64 --model.optimizer=Adamax
+2022-06-29 15:51:00 INFO Running runs: ['cntzhqak']
+2022-06-29 15:53:51 INFO Cleaning up finished run: f0xzxbg0
+2022-06-29 15:53:52 INFO Agent received command: exit
+2022-06-29 15:53:52 INFO Received exit command. Killing runs and quitting.
+2022-06-29 15:54:23 INFO Cleaning up finished run: 4ro5om63
+2022-06-29 15:54:23 INFO Agent received command: exit
+2022-06-29 15:54:23 INFO Received exit command. Killing runs and quitting.
+2022-06-29 15:54:33 INFO Cleaning up finished run: zcr1jddc
+2022-06-29 15:54:33 INFO Agent received command: exit
+2022-06-29 15:54:33 INFO Received exit command. Killing runs and quitting.
+2022-06-29 16:04:51 ERROR Retry attempt failed:
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/util/connection.py", line 72, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/socket.py", line 954, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1040, in _validate_conn
+    conn.connect()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 358, in connect
+    self.sock = conn = self._new_conn()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x7fe908719df0>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 440, in send
+    resp = conn.urlopen(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 785, in urlopen
+    retries = retries.increment(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fe908719df0>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 102, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 140, in execute
+    return self.client.execute(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 38, in execute
+    request = requests.post(self.url, **post_args)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/api.py", line 117, in post
+    return request('post', url, data=data, json=json, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/sessions.py", line 529, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/sessions.py", line 645, in send
+    r = adapter.send(request, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fe908719df0>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+2022-06-29 16:12:40 INFO Running runs: []
+2022-06-29 16:12:40 INFO Agent received command: run
+2022-06-29 16:12:40 INFO Agent starting run with config:
+	model.n_layers: 5
+2022-06-29 16:12:40 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --model.n_layers=5
+2022-06-29 16:12:45 INFO Running runs: ['mvfojd1k']
+2022-06-29 16:15:02 INFO Running runs: []
+2022-06-29 16:15:04 INFO Agent received command: run
+2022-06-29 16:15:04 INFO Agent starting run with config:
+	model.n_layers: 10
+2022-06-29 16:15:04 INFO About to run command: /usr/bin/env python scripts/trainer.py fit --config configs/cnn.yaml --model.n_layers=10
+2022-06-29 16:15:09 INFO Running runs: ['65m2obza']
+2022-06-29 16:43:47 ERROR Retry attempt failed:
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/util/connection.py", line 72, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/socket.py", line 954, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1040, in _validate_conn
+    conn.connect()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 358, in connect
+    self.sock = conn = self._new_conn()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x7f8da0939f40>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 440, in send
+    resp = conn.urlopen(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 785, in urlopen
+    retries = retries.increment(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f8da0939f40>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 102, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 140, in execute
+    return self.client.execute(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 38, in execute
+    request = requests.post(self.url, **post_args)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/api.py", line 117, in post
+    return request('post', url, data=data, json=json, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/sessions.py", line 529, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/sessions.py", line 645, in send
+    r = adapter.send(request, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f8da0939f40>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+2022-06-29 16:43:47 ERROR Retry attempt failed:
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/util/connection.py", line 72, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/socket.py", line 954, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1040, in _validate_conn
+    conn.connect()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 358, in connect
+    self.sock = conn = self._new_conn()
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x7f8890a29a00>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 440, in send
+    resp = conn.urlopen(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/connectionpool.py", line 785, in urlopen
+    retries = retries.increment(
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f8890a29a00>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 102, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 140, in execute
+    return self.client.execute(*args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 38, in execute
+    request = requests.post(self.url, **post_args)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/api.py", line 117, in post
+    return request('post', url, data=data, json=json, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/sessions.py", line 529, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/sessions.py", line 645, in send
+    r = adapter.send(request, **kwargs)
+  File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f8890a29a00>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))

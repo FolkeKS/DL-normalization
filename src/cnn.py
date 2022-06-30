@@ -28,7 +28,7 @@ import src.tools as tools
 class CNN(pl.LightningModule):
     # image_size = 64
     def __init__(self,
-                 n_layers: int = 10,
+                 n_hidden_layers: int = 10,
                  kernel_size: int = 3,
                  n_channels: int = 3,
                  n_classes: int = 1,
@@ -43,7 +43,7 @@ class CNN(pl.LightningModule):
 
         super().__init__()
         # self.hparams = hparams
-        self.n_layers = n_layers
+        self.n_hidden_layers = n_hidden_layers
         self.kernel_size = kernel_size
         self.n_channels = n_channels
         self.n_classes = n_classes
@@ -73,7 +73,7 @@ class CNN(pl.LightningModule):
                 nn.ReLU())
         self.layers = nn.ModuleList()
         self.layers.append(conv(self.n_channels, 64))
-        for i in range(n_layers-1):
+        for i in range(n_hidden_layers):
             self.layers.append(conv(64, 64))
 
         self.layers.append( nn.Sequential(
