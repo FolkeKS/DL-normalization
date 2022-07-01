@@ -14,7 +14,7 @@ def masked_mse(inputs, targets):
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
-
+    assert H == 290, f"H = {H}" 
     # mask defined where target equals zero
     mask_true = (~targets.eq(0.)).to(torch.float32)
     masked_squared_error = torch.square(torch.flatten(
@@ -28,6 +28,7 @@ def masked_relative_error(inputs, targets, q=None):
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
+    assert H == 290, f"H = {H}"
     # mask is true where normalization coefficients equals zero
     mask_true = (~targets.eq(0.)).to(torch.uint8)
 
@@ -70,7 +71,7 @@ def transform_crop(y):
         W = 360
         modif = True
     if H > 290:
-        H = 29
+        H = 290
         modif = True
     if modif :
         return  transforms.CenterCrop([H, W])(y)
