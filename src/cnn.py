@@ -28,7 +28,7 @@ import src.tools as tools
 class CNN(pl.LightningModule):
     # image_size = 64
     def __init__(self,
-                 n_hidden_layers: int = 8,
+                 n_hidden_layers: int = 3,
                  kernel_size: int = 3,
                  n_channels: int = 3,
                  n_classes: int = 1,
@@ -54,7 +54,7 @@ class CNN(pl.LightningModule):
         self.predict_inverse = predict_inverse
         self.q = q
         self.loss_fn = loss_fn
-
+        self.save_hyperparameters()
         if standarize_outputs:
             f = open(data_dir+"norms_std_mean.txt")
             lines = f.readlines()

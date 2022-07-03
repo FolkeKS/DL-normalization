@@ -14,7 +14,6 @@ def masked_mse(inputs, targets):
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
-    assert H == 290, f"H = {H}" 
     # mask defined where target equals zero
     mask_true = (~targets.eq(0.)).to(torch.float32)
     masked_squared_error = torch.square(torch.flatten(
@@ -28,10 +27,9 @@ def masked_relative_error(inputs, targets, q=None):
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
-    assert H == 290, f"H = {H}"
     # mask is true where normalization coefficients equals zero
     mask_true = (~targets.eq(0.)).to(torch.uint8)
-
+    
     masked_abs_rel_error = torch.flatten(mask_true) * torch.abs((torch.flatten(targets) -
                                                                  torch.flatten(inputs))/torch.flatten(targets+1e-12))
     q_res = torch.zeros(1)
@@ -73,8 +71,8 @@ def transform_crop(y):
     if H > 290:
         H = 290
         modif = True
-    if modif :
-        return  transforms.CenterCrop([H, W])(y)
+    if modif:
+        return transforms.CenterCrop([H, W])(y)
     else :
         return y
 
@@ -95,11 +93,12 @@ def step(self, batch):
 
         if self.predict_inverse:
             y_hat = 1/y_hat
-        if self.predict_squared:
+            y = 1/y
+        if not self.predict_squared:
             y_hat = y_hat**2
 
         rel_mean, rel_max, q_res, rmse = masked_relative_error(
-                    y_hat**2, y**2, self.q)
+                    y_hat, y**2, self.q)
 
         return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res, 'rmse':rmse}
 
