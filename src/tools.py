@@ -21,6 +21,17 @@ def masked_mse(inputs, targets):
     masked_mse = torch.sum(masked_squared_error) / torch.sum(mask_true)
     return masked_mse
 
+def masked_rmse_eps(inputs, targets):
+    _, _, H, W = inputs.shape
+    # crop targets in case they are padded
+    targets = transforms.CenterCrop([H, W])(targets)
+    assert W == 360, f"W = {W}"
+    mask_true = (~targets.eq(0.)).to(torch.uint8)
+    masked_squared_rel_error = torch.flatten(mask_true) * torch.pow(torch.flatten(targets) -
+                                                                  torch.flatten(inputs),2)/torch.pow(torch.flatten(targets+1e-12),2)
+
+    rmse = torch.sqrt(torch.sum(masked_squared_rel_error) / torch.sum(mask_true))
+    return rmse
 
 def masked_relative_error(inputs, targets, q=None):
     _, _, H, W = inputs.shape
@@ -46,7 +57,13 @@ def masked_relative_error(inputs, targets, q=None):
     return masked_mean_abs, masked_max, q_res, rmse
 
 
-
+def compute_loss(model,y_hat, y):
+        if model.loss_fn == "masked_mse":
+            return masked_mse(y_hat, y)
+        elif model.loss_fn == "rmse_eps":
+            return masked_rmse_eps(y_hat, y)
+        else:
+            raise NotImplementedError(model.loss_fn + " not implemented")
 
 def epoch_end(self, outputs, step):
 
@@ -81,10 +98,7 @@ def step(self, batch):
         x, y = batch
         y_hat = transform_crop(self.forward(x))
         # Calculate loss
-        if self.loss_fn == "masked_mse":
-            loss = masked_mse(y_hat, y)
-        else:
-            raise NotImplementedError(self.loss_fn + " not implemented")
+        loss = compute_loss(self, y_hat, y)
 
         if self.standarize_outputs:
             idx = torch.nonzero(y).split(1, dim=1)

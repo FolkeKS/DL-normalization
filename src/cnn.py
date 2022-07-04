@@ -42,7 +42,6 @@ class CNN(pl.LightningModule):
                  **kwargs):
 
         super().__init__()
-        # self.hparams = hparams
         self.n_hidden_layers = n_hidden_layers
         self.kernel_size = kernel_size
         self.n_channels = n_channels
@@ -62,7 +61,6 @@ class CNN(pl.LightningModule):
             self.norm_std = float(lines[0])
             self.norm_mean = float(lines[1])
             f.close()
-            #print("std ",self.norm_std," mean ", self.norm_mean)
 
         def conv(in_channels, out_channels):
             # returns a block compsed of a Convolution layer with ReLU activation function
