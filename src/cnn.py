@@ -28,7 +28,7 @@ import src.tools as tools
 class CNN(pl.LightningModule):
     # image_size = 64
     def __init__(self,
-                 n_hidden_layers: int = 3,
+                 n_hidden_layers: int = 8,
                  kernel_size: int = 3,
                  n_channels: int = 3,
                  n_classes: int = 1,

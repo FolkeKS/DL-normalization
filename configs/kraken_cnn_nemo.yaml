@@ -52,7 +52,7 @@ trainer:
   check_val_every_n_epoch: 1
   fast_dev_run: false
   accumulate_grad_batches: null
-  max_epochs: 3000
+  max_epochs: 300
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -101,11 +101,11 @@ model:
   predict_inverse: false
   loss_fn: masked_mse
   q: 0.9999 
-  data_dir: data/processed/nemo_perten90_samples_standardize/
+  data_dir: data/processed/nemo_fixed/
 
 data:
   batch_size: 1
-  data_dir: data/processed/nemo_perten90_samples_standardize/
+  data_dir: data/processed/nemo_fixed/
   num_workers: 0
   gpus: 0
 ckpt_path: null
