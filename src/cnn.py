@@ -66,7 +66,7 @@ class CNN(pl.LightningModule):
             # returns a block compsed of a Convolution layer with ReLU activation function
             return nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size,
-                          padding="same", padding_mode="replicate"),
+                          padding="same"),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU())
         self.layers = nn.ModuleList()
@@ -75,7 +75,7 @@ class CNN(pl.LightningModule):
             self.layers.append(conv(64, 64))
 
         self.layers.append( nn.Sequential(
-            nn.Conv2d(64, self.n_classes, kernel_size, padding="same", padding_mode="replicate")))
+            nn.Conv2d(64, self.n_classes, kernel_size, padding="valid")))
 
     def forward(self, x):
         for layer in self.layers:

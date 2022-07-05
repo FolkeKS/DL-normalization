@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 import pytorch_lightning as pl
+import torchvision.transforms as transforms
 
 
 class DirDataset(Dataset):
@@ -27,12 +28,14 @@ class DirDataset(Dataset):
         assert len(X_files) == 1, f'{idx}: {X_files}'
         assert len(Y_files) == 1, f'{idx}: {Y_files}'
 
-        X = np.load(X_files[0])['arr_0']
-        Y = np.load(Y_files[0])['arr_0']
-
+        X = torch.from_numpy(np.load(X_files[0])['arr_0']).float()
+        Y = torch.from_numpy(np.load(Y_files[0])['arr_0']).float()
+        
+        X = transforms.CenterCrop([310, 380])(X)
+        X = transforms.CenterCrop([310, 380])(Y)
         # Make input image dimensions divisible by 32
-        return torch.from_numpy(X[:, :, :]).float(), \
-            torch.from_numpy(Y).float()
+        return X, \
+            Y
 
 
 class DirLightDataset(pl.LightningDataModule):

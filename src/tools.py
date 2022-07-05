@@ -18,7 +18,7 @@ def masked_mse(inputs, targets):
     mask_true = (~targets.eq(0.)).to(torch.float32)
     masked_squared_error = torch.square(torch.flatten(
         mask_true) * (torch.flatten(targets) - torch.flatten(inputs)))
-    masked_mse = torch.sum(masked_squared_error) / torch.sum(mask_true)
+    masked_mse = (1/torch.sum(mask_true)) * torch.sum(masked_squared_error) 
     return masked_mse
 
 def masked_rmse_eps(inputs, targets):
@@ -30,7 +30,7 @@ def masked_rmse_eps(inputs, targets):
     masked_squared_rel_error = torch.flatten(mask_true) * torch.pow(torch.flatten(targets) -
                                                                   torch.flatten(inputs),2)/torch.pow(torch.flatten(targets+1e-12),2)
 
-    rmse = torch.sqrt(torch.sum(masked_squared_rel_error) / torch.sum(mask_true))
+    rmse = (1/torch.sum(mask_true)) * torch.sqrt(torch.sum(masked_squared_rel_error))
     return rmse
 
 def masked_relative_error(inputs, targets, q=None):
