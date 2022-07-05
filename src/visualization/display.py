@@ -91,7 +91,7 @@ def plot_error_globe(error, lon_swath, lat_swath,
                      nadir_data=None, lon_nadir=None, lat_nadir=None,
                      cmap = None, norm = None, levels = 0, variable = None,
                      title = None,cmap_title=None, unit = 'm', marker = None, log = False, 
-                     figsize = (30, 10),vmin=None,vmax=None,projection="PlateCarree"):
+                     figsize = (30, 10),vmin=None,vmax=None,projection="PlateCarree",central_longitude=180):
     
     Nalong, Nacross = error.shape
 
@@ -116,11 +116,11 @@ def plot_error_globe(error, lon_swath, lat_swath,
     
     c = axs.pcolormesh(lon_swath[:,:Nacross//2], lat_swath[:,:Nacross//2],
                        error[:,:Nacross//2],  cmap = cmap, vmin=vmin,vmax=vmax, 
-                       transform=ccrs.PlateCarree(central_longitude=180))
+                       transform=ccrs.PlateCarree(central_longitude=central_longitude))
     
     c = axs.pcolormesh(lon_swath[:,-Nacross//2:], lat_swath[:,-Nacross//2:],
                        error[:,-Nacross//2:],  cmap = cmap, vmin=vmin,vmax=vmax, 
-                       transform=ccrs.PlateCarree(central_longitude=180))
+                       transform=ccrs.PlateCarree(central_longitude=central_longitude))
     
     #axs.set_title("Train",fontsize=18)
     axs.coastlines()

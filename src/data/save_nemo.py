@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue May 31 11:15:07 2022
+Created on Wed Jun 22 10:17:21 2022
 
 @author: skrunes
 """
+
 import sys
-from src.features import get_std_mean, get_min_max,pad_lon,get_standardized_data,get_normalized_data,augment_data
+from src.features import get_std_mean, get_min_max,pad_lon,pad_lat, \
+                         get_standardized_data,get_normalized_data,augment_data
 import os
 import netCDF4 as nc
 import numpy as np
 from argparse import ArgumentParser
 import json
 
-def main(data_path,n_train,n_valid,pad,data_transformation,valid_path,data_augmentation):
+def main(data_path,n_train,n_valid, npad_lat,
+                npad_lon,data_transformation,valid_path,data_augmentation):
     
     if n_train is not None:
         assert n_train + n_valid <=len(os.listdir(data_path)), f"Not enough data, reduce number of samples"
-        save_path = "data/processed/"+ data_path.split("/")[-2]+ str(n_train) +"_samples_" + data_transformation +"/"
+        save_path = "data/processed/nemo"+ data_path.split("/")[-2]+ str(n_train) +"_samples_" + data_transformation +"/"
     else:
-        save_path = "data/processed/"+ data_path.split("/")[-2]+ str(len(os.listdir(data_path))) +"_samples_" + data_transformation +"/"
+        save_path = "data/processed/nemo"+ data_path.split("/")[-2]+ str(len(os.listdir(data_path))) +"_samples_" + data_transformation +"/"
     
     # Check whether the specified path exists or not
     assert os.path.exists(save_path)==False, save_path + " is not empty"
@@ -35,7 +38,7 @@ def main(data_path,n_train,n_valid,pad,data_transformation,valid_path,data_augme
     os.makedirs(save_path+ "valid/Y/")
     
     if data_transformation=="standardize":
-        dstd,dmean= get_std_mean(data_path,["alpha_i_minus","alpha_j_minus","w","norm_coeffs"],n_train)
+        dstd,dmean= get_std_mean(data_path,["alpha_i_minus","alpha_j_minus","w","norm_coeffs"],n_train,npad_lat,npad_lon)
         
         #Save norm_coeff std and mean for future use
         f = open(save_path +"norms_std_mean.txt","w")
@@ -84,7 +87,12 @@ def main(data_path,n_train,n_valid,pad,data_transformation,valid_path,data_augme
                 else:
                     raise NotImplementedError("available: standardize,normalize")
                 
-                X = pad_lon(X,pad)
+                assert X.shape == (3,290+2*npad_lat,360+2*npad_lon),f"{X.shape}"
+                assert Y.shape == (290+2*npad_lat,360+2*npad_lon),f"{Y.shape}"
+
+                #X[0,:,:] = pad_variable_lat(X,npad_lat)
+                #X = pad_lon(X,npad_lon)
+
                 
                 fnameX = save_path + "train/X/"+ file_list.split('.')[0]
                 fnameY = save_path + "train/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
@@ -109,7 +117,10 @@ def main(data_path,n_train,n_valid,pad,data_transformation,valid_path,data_augme
                     else:
                         raise NotImplementedError("available: standardize,normalize")
                     
-                    X = pad_lon(X,pad)
+                    #X = pad_lat(X,npad_lat)
+                    #X = pad_lon(X,npad_lon)
+                    assert X.shape == (3,290+2*npad_lat,360+2*npad_lon),f"{X.shape}"
+                    assert Y.shape == (290+2*npad_lat,360+2*npad_lon),f"{Y.shape}"
                     
                     fnameX = save_path + "valid/X/"+ file_list.split('.')[0]
                     fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
@@ -133,7 +144,8 @@ def main(data_path,n_train,n_valid,pad,data_transformation,valid_path,data_augme
                     else:
                         raise NotImplementedError("available: standardize,normalize")
                     
-                    X = pad_lon(X,pad)
+                    #X = pad_lat(X,npad_lat)
+                    #X = pad_lon(X,npad_lon)
                     
                     fnameX = save_path + "valid/X/"+ file_list.split('.')[0]
                     fnameY = save_path + "valid/Y/"+ file_list.split('.')[0] + "_norm_coeffs"
@@ -170,7 +182,8 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", type=str, default="data/demo/isotropic_noise/")
     parser.add_argument("--n_train", type=int, default=None, help="Number of training samples")
     parser.add_argument("--n_valid", type=int, default=None, help="Number of validation samples")
-    parser.add_argument("--pad", type=int, default=44)
+    parser.add_argument("--npad_lat", type=int, default=31)
+    parser.add_argument("--npad_lon", type=int, default=20)
     parser.add_argument("--data_transformation", type=str, default="standardize")
     parser.add_argument("--data_augmentation", type=str, default=None)
     parser.add_argument("--valid_path", type=str, default=None)
@@ -178,4 +191,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(args.data_path,args.n_train,args.n_valid,args.pad,args.data_transformation,args.valid_path,args.data_augmentation)
+    main(args.data_path,args.n_train,args.n_valid,args.npad_lat,args.npad_lon,
+         args.data_transformation,args.valid_path,args.data_augmentation)

@@ -31,7 +31,7 @@ class DirDataset(Dataset):
         Y = np.load(Y_files[0])['arr_0']
 
         #Make input image dimensions divisible by 32
-        return torch.from_numpy(X[:,10:-10,:]).float(), \
+        return torch.from_numpy(X[:,:,:]).float(), \
             torch.from_numpy(Y).float()
 
 class DirLightDataset(pl.LightningDataModule):

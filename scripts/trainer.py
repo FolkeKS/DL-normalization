@@ -19,6 +19,9 @@ from pytorch_lightning.utilities.cli import LightningCLI
 from pytorch_lightning.loggers import TensorBoardLogger,WandbLogger
 from src.data.dataset import DirLightDataset
 import torch.multiprocessing
+import src as sr
+import importlib
+importlib.reload(sr)
 
 
 trainer = LightningCLI(Unet,DirLightDataset,save_config_callback=None)

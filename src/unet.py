@@ -24,6 +24,9 @@ import functools
 import pytorch_lightning as pl
 from src.data.dataset import DirDataset
 import linecache
+import wandb
+
+
 
 def masked_mse(inputs, targets):
     _,_,H,W = inputs.shape
@@ -134,7 +137,7 @@ class Unet(pl.LightningModule):
                                    ngf=depth_0_filters,
                                    norm_layer=self.norm_layer, use_dropout=True),
                                       nn.Conv2d(final_layer_filters, self.n_classes, 2, 
-                                                padding="same",padding_mode="replicate"))
+                                                padding="same"))
 
 
     def forward(self, x):
@@ -146,11 +149,15 @@ class Unet(pl.LightningModule):
   
     def training_step(self, batch, batch_nb):
         x, y = batch
+        
         y_hat = self.forward(x)
         _,_,H,W = y_hat.shape
         if W>360:
             W=360
-            y_hat=transforms.CenterCrop([H,W])(y_hat)
+            
+        if H>290:
+            H=290
+        y_hat=transforms.CenterCrop([H,W])(y_hat)
 
         #Calculate loss
         if self.loss_fn=="masked_mse": 
@@ -186,6 +193,11 @@ class Unet(pl.LightningModule):
                 rel_mean,rel_max = masked_relative_error(1/y_hat**2, 1/y**2)
             elif self.predict_inverse == False:
                 rel_mean,rel_max = masked_relative_error(y_hat**2, y**2)
+                
+                
+        if self.current_epoch==5:
+            images = wandb.Image(y_hat, caption="Top: Output, Bottom: Input")
+            wandb.log({"examples": images})
 
         return {'loss': loss,'rel_mean': rel_mean,'rel_max': rel_max}
     
@@ -197,6 +209,8 @@ class Unet(pl.LightningModule):
         self.log("train_loss", avg_loss)
         self.log("train_mean", avg_mean)
         self.log("train_max", avg_max)
+        
+        
 
 
     def validation_step(self, batch, batch_nb):
@@ -205,7 +219,9 @@ class Unet(pl.LightningModule):
         _,_,H,W = y_hat.shape
         if W>360:
             W=360
-            y_hat=transforms.CenterCrop([H,W])(y_hat)
+        if H>290:
+            H=290
+        y_hat=transforms.CenterCrop([H,W])(y_hat)
             
             
         #Calculate loss
