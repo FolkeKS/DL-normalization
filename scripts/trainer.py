@@ -13,6 +13,7 @@ import numpy as np
 import torch
 
 from src.unet import Unet
+from src.manualunet import ManualUnet
 from pytorch_lightning import Trainer,seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.utilities.cli import LightningCLI
@@ -21,4 +22,4 @@ from src.data.dataset import DirLightDataset
 import torch.multiprocessing
 
 
-trainer = LightningCLI(Unet,DirLightDataset,save_config_callback=None)
+trainer = LightningCLI(ManualUnet,DirLightDataset,save_config_callback=None)
