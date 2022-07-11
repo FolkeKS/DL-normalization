@@ -330,3 +330,31 @@ Traceback (most recent call last):
   File "/Users/coulaud/opt/anaconda3/envs/DL-normalization/lib/python3.9/site-packages/requests/adapters.py", line 519, in send
     raise ConnectionError(e, request=request)
 requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f8890a29a00>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+2022-07-11 16:57:50 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:58:00 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:58:10 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:58:20 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:58:30 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:58:40 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:58:50 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:00 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:10 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:20 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:30 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:40 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:51 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
+2022-07-11 16:59:59 ERROR dropped chunk 404 Client Error: Not Found for url: https://api.wandb.ai/files/normalisation_internship/cnn/r8qduky0/file_stream
+NoneType: None
