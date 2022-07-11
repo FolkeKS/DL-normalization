@@ -21,16 +21,17 @@ def masked_mse(inputs, targets):
     masked_mse = (1/torch.sum(mask_true)) * torch.sum(masked_squared_error) 
     return masked_mse
 
-def masked_rmse_eps(inputs, targets):
+def masked_mse_eps(inputs, targets):
+    # |E[eps^2]
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
     assert W == 360, f"W = {W}"
     mask_true = (~targets.eq(0.)).to(torch.uint8)
-    masked_squared_rel_error = torch.flatten(mask_true) * torch.pow(torch.flatten(targets) -
-                                                                  torch.flatten(inputs),2)/torch.pow(torch.flatten(targets+1e-12),2)
+    square_diff = torch.flatten(mask_true) * torch.square(torch.flatten(targets)) - torch.square(torch.flatten(inputs))
+    masked_squared_rel_error = torch.square(torch.div(square_diff,torch.square(torch.flatten(targets)))+1e-12)
 
-    rmse = (1/torch.sum(mask_true)) * torch.sqrt(torch.sum(masked_squared_rel_error))
+    rmse = (1/torch.sum(mask_true)) * torch.sum(masked_squared_rel_error)
     return rmse
 
 def masked_relative_error(inputs, targets, q=None):
@@ -50,18 +51,17 @@ def masked_relative_error(inputs, targets, q=None):
     masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
     masked_max = torch.max(masked_abs_rel_error)
 
-    masked_squared_rel_error = torch.flatten(mask_true) * torch.pow(torch.flatten(targets) -
-                                                                  torch.flatten(inputs),2)/torch.pow(torch.flatten(targets+1e-12),2)
-
-    rmse = torch.sqrt(torch.sum(masked_squared_rel_error) / torch.sum(mask_true))
+    rmse = torch.sqrt(masked_mse_eps(inputs, targets))
     return masked_mean_abs, masked_max, q_res, rmse
 
 
 def compute_loss(model,y_hat, y):
         if model.loss_fn == "masked_mse":
             return masked_mse(y_hat, y)
-        elif model.loss_fn == "rmse_eps":
-            return masked_rmse_eps(y_hat, y)
+        elif model.loss_fn == "masked_mse_eps":
+            idx = torch.nonzero(y).split(1, dim=1)
+            y_hat_loss = y_hat*model.norm_std + model.norm_mean
+            return masked_mse_eps(model, y_hat_loss, y[idx]*model.norm_std + model.norm_mean)
         else:
             raise NotImplementedError(model.loss_fn + " not implemented")
 

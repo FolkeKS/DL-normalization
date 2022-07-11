@@ -66,7 +66,7 @@ class CNN(pl.LightningModule):
             # returns a block compsed of a Convolution layer with ReLU activation function
             return nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size,
-                          padding="same"),
+                          padding="valid"),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU())
         self.layers = nn.ModuleList()
