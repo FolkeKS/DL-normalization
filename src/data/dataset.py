@@ -28,11 +28,15 @@ class DirDataset(Dataset):
         assert len(X_files) == 1, f'{idx}: {X_files}'
         assert len(Y_files) == 1, f'{idx}: {Y_files}'
 
+        distance_map = torch.from_numpy(np.load("data/sign_distance_map.npy"))
         X = torch.from_numpy(np.load(X_files[0])['arr_0']).float()
         Y = torch.from_numpy(np.load(Y_files[0])['arr_0']).float()
-        
+
+        distance_map = transforms.CenterCrop([310, 380])(distance_map)
         X = transforms.CenterCrop([310, 380])(X)
         Y = transforms.CenterCrop([310, 380])(Y)
+
+        X = torch.cat((X,torch.unsqueeze(distance_map, 0)),0)
         # Make input image dimensions divisible by 32
         return X, \
             Y
