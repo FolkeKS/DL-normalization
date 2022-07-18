@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jul 12 14:58:10 2022
+
+@author: coulaud
+"""
+import shutil
+import numpy as np
+import os
+
+def cropX(X, dist_map):
+    _,H,W  = X.shape
+    if H != 310 and W != 380:
+        padd_H = (H-290)//2 - 10
+        padd_W = (W-360)//2 - 10
+        Y    = np.empty((4,310,380))
+        Y[0] = X[0,padd_H:-padd_H,padd_W:-padd_W]
+        Y[1] = X[1,padd_H:-padd_H,padd_W:-padd_W]
+        Y[2] = X[2,padd_H:-padd_H,padd_W:-padd_W]
+        Y[3] = dist_map
+        return Y
+    return X
+
+
+def cropY(Y):
+    H,W  = Y.shape
+    if H != 310 and W != 380:
+        padd_H = (H-290)//2 - 10
+        padd_W = (W-360)//2 - 10
+        Y = Y[padd_H:-padd_H,padd_W:-padd_W]
+    return Y
+
+def rota_90(X):
+    _,H,W  = X.shape
+      
+    alphas_i = np.rot90(X[0,:,:], k=1, axes=(1,0))
+    alphas_j = np.rot90(X[1,:,:], k=1, axes=(1,0))
+    w        = np.rot90(X[2,:,:], k=1, axes=(1,0))
+    dist_map = np.rot90(X[3,:,:], k=1, axes=(1,0))
+    alphas_j = np.roll(alphas_j, 1, axis = 1)
+    
+    X    = np.empty((4,W,H))
+    X[0] = alphas_j
+    X[1] = alphas_i
+    X[2] = w
+    X[3] = dist_map
+    return X
+
+def rota_180(X):
+    _,H,W  = X.shape
+        
+    alphas_i = np.rot90(X[0,:,:], k=2, axes=(1,0))
+    alphas_j = np.rot90(X[1,:,:], k=2, axes=(1,0))
+    w        = np.rot90(X[2,:,:], k=2, axes=(1,0))
+    dist_map = np.rot90(X[3,:,:], k=2, axes=(1,0))
+    alphas_j = np.roll(alphas_j, 1, axis = 1)
+    alphas_i = np.roll(alphas_i, 1, axis = 0)
+    
+    X    = np.empty((4,H,W))
+    X[0] = alphas_i
+    X[1] = alphas_j
+    X[2] = w
+    X[3] = dist_map
+    return X
+
+def rota_270(X):
+    _,H,W  = X.shape
+        
+    alphas_i = np.rot90(X[0,:,:], k=1, axes=(0,1))
+    alphas_j = np.rot90(X[1,:,:], k=1, axes=(0,1))
+    w        = np.rot90(X[2,:,:], k=1, axes=(0,1))
+    dist_map = np.rot90(X[3,:,:], k=1, axes=(0,1))
+    alphas_i = np.roll(alphas_j, 1, axis = 1)
+    
+    X    = np.empty((4,W,H))
+    X[0] = alphas_j
+    X[1] = alphas_i
+    X[2] = w
+    X[3] = dist_map
+    return X
+
+def flip_hor(X):
+    _,H,W  = X.shape
+    alphas_i = np.fliplr(X[0,:,:])
+    alphas_j = np.fliplr(X[1,:,:])
+    w        = np.fliplr(X[2,:,:])
+    dist_map = np.flipud(X[3,:,:])
+    alphas_i = np.roll(alphas_j, 1, axis = 1)
+    X    = np.empty((4,H,W))
+    X[0] = alphas_j
+    X[1] = alphas_i
+    X[2] = w
+    X[3] = dist_map
+    return X
+
+def flip_vert(X):
+    _,H,W  = X.shape
+    alphas_i = np.flipud(X[0,:,:])
+    alphas_j = np.flipud(X[1,:,:])
+    w        = np.flipud(X[2,:,:])
+    dist_map = np.flipud(X[3,:,:])
+    alphas_j = np.roll(alphas_j, 1, axis = 1)
+    X    = np.empty((4,H,W))
+    X[0] = alphas_j
+    X[1] = alphas_i
+    X[2] = w
+    X[3] = dist_map
+    return X
+
+
+folder_name = "nemonemo_bnd_perten1_samples_standardize"
+data_dir = "data/processed/"+folder_name
+dist_map = np.load("data/sign_distance_map.npy")
+dst_dir = data_dir+"_augmented"
+shutil.copytree(data_dir, dst_dir)
+
+for file in os.listdir(data_dir+"/train/X/"):
+    if file.split('.')[-1]=="npz":
+
+        fnameX = data_dir+"/train/X/"+file
+        X = cropX(np.load(fnameX)['arr_0'], dist_map)
+
+        saveX = dst_dir+"/train/X/"+file
+        os.remove(saveX) 
+        np.savez_compressed(saveX, X)
+        print(X.shape)
+        #rota 90
+        saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_90" 
+        np.savez_compressed(saveX, rota_90(X))
+        #rota 180
+        saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_180" 
+        np.savez_compressed(saveX, rota_180(X))
+        #rota 270
+        saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_270" 
+        np.savez_compressed(saveX, rota_270(X))
+        #flip hor
+        saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_flip_hor" 
+        np.savez_compressed(saveX, flip_hor(X))
+        # flip vert
+        saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_flip_vert" 
+        np.savez_compressed(saveX, flip_vert(X))
+
+print("X done")
+
+
+for file in os.listdir(data_dir+"/train/Y/"):
+    if file.split('.')[-1]=="npz":
+
+        fnameY = data_dir+"/train/Y/"+file
+        Y = cropY(np.load(fnameY)['arr_0'])
+
+        saveY = dst_dir+"/train/Y/"+file
+        os.remove(saveY) 
+        np.savez_compressed(saveY, Y)
+        #rota 90
+        saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_90_norm_coeffs"
+        np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(1,0)))
+        #rota 180
+        saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_180_norm_coeffs"
+        np.savez_compressed(saveY, np.rot90(Y, k=2, axes=(1,0)))
+        #rota 270
+        saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_270_norm_coeffs"
+        np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(0,1)))
+        #flip hor
+        saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_flip_hor_norm_coeffs"
+        np.savez_compressed(saveY, np.fliplr(Y))
+        #flip vert
+        saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_flip_vert_norm_coeffs"
+        np.savez_compressed(saveY, np.flipud(Y))
+
+print("Y done")
+
+for file in os.listdir(data_dir+"/valid/X/"):
+    if file.split('.')[-1]=="npz":
+
+        fnameX = data_dir+"/valid/X/"+file
+        X = cropX(np.load(fnameX)['arr_0'], dist_map)
+
+        saveX = dst_dir+"/valid/X/"+file
+        os.remove(saveX) 
+        np.savez_compressed(saveX, X)
+
+
+for file in os.listdir(data_dir+"/valid/Y/"):
+    if file.split('.')[-1]=="npz":
+
+        fnameY = data_dir+"/valid/Y/"+file
+        Y = cropY(np.load(fnameY)['arr_0'])
+
+        saveY = dst_dir+"/valid/Y/"+file
+        os.remove(saveY) 
+        np.savez_compressed(saveY, Y)
+
