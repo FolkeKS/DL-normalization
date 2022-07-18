@@ -34,11 +34,11 @@ def cropY(Y):
 def rota_90(X):
     _,H,W  = X.shape
       
-    alphas_i = np.rot90(X[0,:,:], k=1, axes=(1,0))
-    alphas_j = np.rot90(X[1,:,:], k=1, axes=(1,0))
-    w        = np.rot90(X[2,:,:], k=1, axes=(1,0))
-    dist_map = np.rot90(X[3,:,:], k=1, axes=(1,0))
-    alphas_j = np.roll(alphas_j, 1, axis = 1)
+    alphas_i = np.rot90(X[0,:,:], k=1, axes=(0,1))
+    alphas_j = np.rot90(X[1,:,:], k=1, axes=(0,1))
+    w        = np.rot90(X[2,:,:], k=1, axes=(0,1))
+    dist_map = np.rot90(X[3,:,:], k=1, axes=(0,1))
+    alphas_i = np.roll(alphas_i, -1, axis = 1)
     
     X    = np.empty((4,W,H))
     X[0] = alphas_j
@@ -49,12 +49,14 @@ def rota_90(X):
 
 def rota_180(X):
     _,H,W  = X.shape
-        
-    alphas_i = np.rot90(X[0,:,:], k=2, axes=(1,0))
-    alphas_j = np.rot90(X[1,:,:], k=2, axes=(1,0))
-    w        = np.rot90(X[2,:,:], k=2, axes=(1,0))
-    dist_map = np.rot90(X[3,:,:], k=2, axes=(1,0))
-    alphas_j = np.roll(alphas_j, 1, axis = 1)
+
+    
+    
+    alphas_i = np.rot90(X[0,:,:], k=2, axes=(0,1))
+    alphas_j = np.rot90(X[1,:,:], k=2, axes=(0,1))
+    w        = np.rot90(X[2,:,:], k=2, axes=(0,1))
+    dist_map = np.rot90(X[3,:,:], k=2, axes=(0,1))
+    alphas_j = np.roll(alphas_j, -1, axis = 1)
     alphas_i = np.roll(alphas_i, 1, axis = 0)
     
     X    = np.empty((4,H,W))
@@ -67,11 +69,11 @@ def rota_180(X):
 def rota_270(X):
     _,H,W  = X.shape
         
-    alphas_i = np.rot90(X[0,:,:], k=1, axes=(0,1))
-    alphas_j = np.rot90(X[1,:,:], k=1, axes=(0,1))
-    w        = np.rot90(X[2,:,:], k=1, axes=(0,1))
-    dist_map = np.rot90(X[3,:,:], k=1, axes=(0,1))
-    alphas_i = np.roll(alphas_j, 1, axis = 1)
+    alphas_i = np.rot90(X[0,:,:], k=1, axes=(1,0))
+    alphas_j = np.rot90(X[1,:,:], k=1, axes=(1,0))
+    w        = np.rot90(X[2,:,:], k=1, axes=(1,0))
+    dist_map = np.rot90(X[3,:,:], k=1, axes=(1,0))
+    alphas_j = np.roll(alphas_j, 1, axis = 0)
     
     X    = np.empty((4,W,H))
     X[0] = alphas_j
@@ -82,36 +84,37 @@ def rota_270(X):
 
 def flip_hor(X):
     _,H,W  = X.shape
-    alphas_i = np.fliplr(X[0,:,:])
-    alphas_j = np.fliplr(X[1,:,:])
-    w        = np.fliplr(X[2,:,:])
+
+    alphas_i = np.flipud(X[0,:,:])
+    alphas_j = np.flipud(X[1,:,:])
+    w        = np.flipud(X[2,:,:])
     dist_map = np.flipud(X[3,:,:])
-    alphas_i = np.roll(alphas_j, 1, axis = 1)
+    alphas_i = np.roll(alphas_i, 1, axis = 0)
     X    = np.empty((4,H,W))
-    X[0] = alphas_j
-    X[1] = alphas_i
+    X[0] = alphas_i
+    X[1] = alphas_j
     X[2] = w
     X[3] = dist_map
     return X
 
 def flip_vert(X):
     _,H,W  = X.shape
-    alphas_i = np.flipud(X[0,:,:])
-    alphas_j = np.flipud(X[1,:,:])
-    w        = np.flipud(X[2,:,:])
-    dist_map = np.flipud(X[3,:,:])
-    alphas_j = np.roll(alphas_j, 1, axis = 1)
+
+    alphas_i = np.fliplr(X[0,:,:])
+    alphas_j = np.fliplr(X[1,:,:])
+    w        = np.fliplr(X[2,:,:])
+    dist_map = np.fliplr(X[3,:,:])
+    alphas_j = np.roll(alphas_j, -1, axis = 1)
     X    = np.empty((4,H,W))
-    X[0] = alphas_j
-    X[1] = alphas_i
+    X[0] = alphas_i
+    X[1] = alphas_j
     X[2] = w
     X[3] = dist_map
     return X
 
-
 folder_name = "nemonemo_bnd_perten1_samples_standardize"
 data_dir = "data/processed/"+folder_name
-dist_map = np.load("data/sign_distance_map.npy")
+dist_map = np.load("data/sign_distance_map_std.npy")
 dst_dir = data_dir+"_augmented"
 shutil.copytree(data_dir, dst_dir)
 
