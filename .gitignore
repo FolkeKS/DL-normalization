@@ -5,6 +5,7 @@ src.egg-info
 wandb/*
 wandb/debug-*
 notebooks/report-*
-notebooks/cnn_nemo_figures
+notebooks/*
 notebooks/plot_*
 notebooks/Untitled*
+

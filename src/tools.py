@@ -13,7 +13,7 @@ def masked_mse(inputs, targets):
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert W == 360, f"W = {W}"
+    assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     # mask defined where target equals zero
     mask_true = (~targets.eq(0.)).to(torch.float32)
     masked_squared_error = torch.square(torch.flatten(
@@ -26,12 +26,12 @@ def masked_mse_eps(inputs, targets, standartized, std=1, mean=0):
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert W == 360, f"W = {W}"
+    assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     mask_true = (~targets.eq(0.)).to(torch.uint8)
     if standartized:
         targets = targets*std + mean
         inputs = inputs*std + mean
-    square_diff = torch.flatten(mask_true) * torch.square(torch.flatten(targets)) - torch.square(torch.flatten(inputs))
+    square_diff = torch.flatten(mask_true) * torch.square(torch.flatten(inputs)) - torch.square(torch.flatten(targets))
     masked_squared_rel_error = torch.square(torch.div(square_diff,torch.square(torch.flatten(targets))+1e-12))
     mse = (1/torch.sum(mask_true)) * torch.sum(masked_squared_rel_error)
     return mse
@@ -40,7 +40,7 @@ def masked_relative_error(inputs, targets, q=None):
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert W == 360, f"W = {W}"
+    assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     
     # mask is true where normalization coefficients equals zero
     mask_true = (~targets.eq(0.)).to(torch.uint8)
@@ -96,7 +96,8 @@ def transform_crop(y):
 
 def step(self, batch):
         x, y = batch
-        y_hat = transform_crop(self.forward(x))
+        #y_hat = transform_crop(self.forward(x))
+        y_hat = self.forward(x)
         # Calculate loss
         loss = compute_loss(self, y_hat, y)
 

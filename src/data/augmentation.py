@@ -82,7 +82,7 @@ def rota_270(X):
     X[3] = dist_map
     return X
 
-def flip_hor(X):
+def flip_vert(X):
     _,H,W  = X.shape
 
     alphas_i = np.flipud(X[0,:,:])
@@ -97,7 +97,7 @@ def flip_hor(X):
     X[3] = dist_map
     return X
 
-def flip_vert(X):
+def flip_hor(X):
     _,H,W  = X.shape
 
     alphas_i = np.fliplr(X[0,:,:])
@@ -158,13 +158,13 @@ for file in os.listdir(data_dir+"/train/Y/"):
         np.savez_compressed(saveY, Y)
         #rota 90
         saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_90_norm_coeffs"
-        np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(1,0)))
+        np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(0,1)))
         #rota 180
         saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_180_norm_coeffs"
         np.savez_compressed(saveY, np.rot90(Y, k=2, axes=(1,0)))
         #rota 270
         saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_270_norm_coeffs"
-        np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(0,1)))
+        np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(1,0)))
         #flip hor
         saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_flip_hor_norm_coeffs"
         np.savez_compressed(saveY, np.fliplr(Y))
