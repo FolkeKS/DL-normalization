@@ -74,7 +74,7 @@ class CNN(pl.LightningModule):
                 nn.Conv2d(in_channels, out_channels, kernel_size,
                           padding=padding_type),
                 nn.BatchNorm2d(out_channels),
-                nn.ReLU())
+                nn.LeakyReLU(0.1))
 
         def block(layers_per_block, in_channels, out_channels, kernel_size, padding_type):
             block = nn.ModuleList()

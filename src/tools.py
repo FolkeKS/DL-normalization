@@ -21,18 +21,22 @@ def masked_mse(inputs, targets):
     masked_mse = (1/torch.sum(mask_true)) * torch.sum(masked_squared_error) 
     return masked_mse
 
-def masked_mse_eps(inputs, targets, standartized, std=1, mean=0):
+def masked_mse_eps(inputs, targets, standartize, std=1, mean=0, square=False):
     # |E[eps^2]
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
     assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     mask_true = (~targets.eq(0.)).to(torch.uint8)
-    if standartized:
+    if standartize:
         targets = targets*std + mean
         inputs = inputs*std + mean
-    square_diff = torch.flatten(mask_true) * torch.square(torch.flatten(inputs)) - torch.square(torch.flatten(targets))
-    masked_squared_rel_error = torch.square(torch.div(square_diff,torch.square(torch.flatten(targets))+1e-12))
+    if not square:
+        square_diff = torch.flatten(mask_true) * torch.square(torch.flatten(inputs)) - torch.square(torch.flatten(targets))
+        masked_squared_rel_error = torch.square(torch.div(square_diff,torch.square(torch.flatten(targets))+1e-12))
+    else:
+        diff = torch.flatten(mask_true) * torch.flatten(inputs) - torch.flatten(targets)
+        masked_squared_rel_error = torch.square(torch.div(diff,torch.flatten(targets)+1e-12))
     mse = (1/torch.sum(mask_true)) * torch.sum(masked_squared_rel_error)
     return mse
 
@@ -53,7 +57,7 @@ def masked_relative_error(inputs, targets, q=None):
     masked_mean_abs = torch.sum(masked_abs_rel_error) / torch.sum(mask_true)
     masked_max = torch.max(masked_abs_rel_error)
 
-    rmse = torch.sqrt(masked_mse_eps(inputs, targets, False))
+    rmse = torch.sqrt(masked_mse_eps(inputs, targets, standartize=False, square=True))
     return masked_mean_abs, masked_max, q_res, rmse
 
 
@@ -61,7 +65,7 @@ def compute_loss(model,y_hat, y):
         if model.loss_fn == "masked_mse":
             return masked_mse(y_hat, y)
         elif model.loss_fn == "masked_mse_eps":
-            return masked_mse_eps(y_hat, y, True, model.norm_std, model.norm_mean)
+            return masked_mse_eps(y_hat, y, standartize=True, std=model.norm_std, mean=model.norm_mean)
         else:
             raise NotImplementedError(model.loss_fn + " not implemented")
 

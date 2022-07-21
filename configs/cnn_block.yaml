@@ -98,13 +98,14 @@ model:
   n_classes: 1
   kernel_size: 3
   padding_type: "valid"
-  data_dir: data/processed/nemonemo_bnd_perten10_samples_standardize/
   standarize_outputs: true
   optimizer: Adam
   predict_squared: false
   predict_inverse: false
   loss_fn: masked_mse_eps
   q: 0.9999
+  data_dir: data/processed/nemonemo_bnd_perten10_samples_standardize/
+
 
 data:
   batch_size: 1
