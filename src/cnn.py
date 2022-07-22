@@ -24,6 +24,30 @@ import importlib
 import src.tools as tools
 # from dataset import DirDataset
 
+def conv(in_channels, out_channels, kernel_size, padding_type):
+    # returns a block compsed of a Convolution layer with ReLU activation function
+    return nn.Sequential(
+        nn.Conv2d(in_channels, out_channels, kernel_size,
+                    padding=padding_type),
+        nn.BatchNorm2d(out_channels),
+        nn.ReLU())
+
+class Block(nn.Module):
+    def __init__(self,layers_per_block, in_channels, out_channels, kernel_size, padding_type):
+        super().__init__()
+        self.layers = nn.ModuleList()
+        for i in range(layers_per_block):
+            self.layers.append(conv(in_channels, out_channels, kernel_size, padding_type))
+            in_channels = out_channels
+
+    def forward(self, x):
+        out = x
+        for layer in self.layers:
+            out = layer(out)
+        _, _, H, W = out.shape
+        x = transforms.CenterCrop([H, W])(x)
+
+        return x+out
 
 class CNN(pl.LightningModule):
     # image_size = 64
@@ -60,6 +84,7 @@ class CNN(pl.LightningModule):
         self.loss_fn = loss_fn
         self.padding_type = padding_type
         self.save_hyperparameters()
+
         if standarize_outputs:
             f = open(data_dir+"norms_std_mean.txt")
             lines = f.readlines()
@@ -68,29 +93,15 @@ class CNN(pl.LightningModule):
             self.norm_mean = float(lines[1])
             f.close()
 
-        def conv(in_channels, out_channels, kernel_size, padding_type):
-            # returns a block compsed of a Convolution layer with ReLU activation function
-            return nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size,
-                          padding=padding_type),
-                nn.BatchNorm2d(out_channels),
-                nn.LeakyReLU(0.1))
-
-        def block(layers_per_block, in_channels, out_channels, kernel_size, padding_type):
-            block = nn.ModuleList()
-            for i in range(layers_per_block):
-                block.append(conv(in_channels, out_channels, kernel_size, padding_type))
-                in_channels = out_channels
-            return block
 
         self.layers = nn.ModuleList()
         self.layers.append(conv(n_channels, n_blocks_filters, kernel_size, padding_type ))
         for i in range(n_blocks):
             if i == 0:
-                in_channels = n_blocks_filters + 3
+                in_channels = n_blocks_filters #+ n_channels
             else :
-                 in_channels = n_blocks_filters * 2
-            self.layers.append(block(layers_per_block, in_channels, n_blocks_filters, kernel_size, padding_type))
+                 in_channels = n_blocks_filters #* 2
+            self.layers.append(Block(layers_per_block, in_channels, n_blocks_filters, kernel_size, padding_type))
 
         self.layers.append( nn.Sequential(
             nn.Conv2d(n_blocks_filters, n_classes, kernel_size, padding=padding_type)))
@@ -98,19 +109,21 @@ class CNN(pl.LightningModule):
 
 
     def forward(self, x):
-        for i, layer in enumerate(self.layers):
-            if i == 0 or i == self.n_blocks +1:
-                out = layer(x)
-            else:
-                _, _, H, W = out.shape
-                x = transforms.CenterCrop([H, W])(x)
-                prev_out = out
-                out = torch.cat([x,out], dim=1)
-                x = prev_out
-                for inner_layer in layer :
-                    out = inner_layer(out)
-                x = out
-        return out
+        # out = x
+        # for i, layer in enumerate(self.layers):
+        #     if i == 0 or i == self.n_blocks +1:
+        #         out = layer(x)
+        #     else:
+        #         _, _, H, W = out.shape
+        #         x = transforms.CenterCrop([H, W])(x)
+        #         prev_out = out
+        #         out = torch.cat([x,out], dim=1)
+        #         out = layer(out)
+        #         x = prev_out
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
     def training_step(self, batch, batch_nb):
         return tools.step(self, batch)
 
