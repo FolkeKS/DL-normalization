@@ -8,7 +8,7 @@ import torch
 from pytorch_lightning import Trainer,seed_everything,LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 import src.unet as unet
-import src.cnn as cnn
+import src.cnn_block as cnn_block
 import scipy.ndimage.morphology as scm
 import importlib
 import matplotlib.ticker as mtick
@@ -22,7 +22,7 @@ class Plots:
         self.model = model_path
         self.data_path = data_path
         if model_arch == "cnn":
-            self.model=cnn.CNN.load_from_checkpoint(model_path, strict=False)
+            self.model=cnn_block.CNN.load_from_checkpoint(model_path, strict=False)
         elif model_arch == "unet":
             self.model=unet.Unet.load_from_checkpoint(model_path)
         else :

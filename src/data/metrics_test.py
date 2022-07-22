@@ -5,8 +5,13 @@ import numpy as np
 import torch
 from pytorch_lightning import Trainer,seed_everything,LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
-import src.cnn as cnn
+
 import src.cnn_map as cnn_map
+import src.cnn_map_leaky as cnn_map_leaky
+import src.cnn_block as cnn_block
+import src.cnn_map_block as cnn_map_block
+import src.cnn_map_block_leaky as cnn_map_block_leaky
+
 import torchvision.transforms as transforms
 import importlib
 import os
@@ -43,17 +48,31 @@ f.close()
 def transfrom(X):
     return transforms.CenterCrop([310, 380])(torch.from_numpy(X)).numpy()
 
-def compute_eps(X,Y, model_path,std,mean,use_map=False,distance_map=None): 
+def load_X_Y(file):
+    xname = "data/processed/nemo_tests/train/X/"+file
+    yname = "data/processed/nemo_tests/train/Y/"+file.split('.')[0]+"_norm_coeffs.npz"
+    X = transfrom(np.load(xname)['arr_0'])
+    Y = transfrom(np.load(yname)['arr_0'])
+    return X,Y
+
+def compute_eps(X,Y, model_path,std,mean,use_map=False,distance_map=None,use_block=False,leaky=False): 
 
     if use_map :
         X_map = np.empty((4,310,380))
         X_map[0:3,:,:] = X
         X_map[3,:,:] = distance_map
         X = X_map
-        model = cnn_map.CNN.load_from_checkpoint(model_path)  
-        
-    else :
-        model = cnn.CNN.load_from_checkpoint(model_path)   
+        if use_block:
+            model = cnn_map_block.CNN.load_from_checkpoint(model_path)  
+            if leaky:
+                model = cnn_map_block_leaky.CNN.load_from_checkpoint(model_path) 
+        elif leaky : 
+            model = cnn_map_leaky.CNN.load_from_checkpoint(model_path)  
+        else:
+            model = cnn_map.CNN.load_from_checkpoint(model_path)  
+    elif use_block:
+            model = cnn_block.CNN.load_from_checkpoint(model_path)  
+
     
     
     Y = transforms.CenterCrop([290, 360])(torch.from_numpy(Y)).numpy()
@@ -69,38 +88,74 @@ def compute_eps(X,Y, model_path,std,mean,use_map=False,distance_map=None):
 
     return eps
 
+f = open('metrics.txt', 'w')
 
-
-model_path = "results/wandb/cnn/rot90/checkpoints/epoch=10570-val_loss=0.00076.ckpt"
 distance_map_std = transfrom(np.load("data/sign_distance_map_std.npy"))
+model_paths = []
+exps = []
+model_params = []
+### 10
+exps.append("10_1")
+model_paths.append("results/wandb/cnn/10_1/checkpoints/epoch=47888-val_loss=0.00001.ckpt")
+model_params.append([True,distance_map_std,False,False])
+### 10 + fliplr
+exps.append("10_fliplr")
+model_paths.append("results/wandb/cnn/flip_hor_10/checkpoints/epoch=23421-val_loss=0.00001.ckpt")
+model_params.append([True,distance_map_std,False,False])
+### 20
+exps.append("20_1")
+model_paths.append("results/wandb/cnn/20_1/checkpoints/epoch=24910-val_loss=0.00001.ckpt")
+model_params.append([True,distance_map_std,False,False])
+### 20
+exps.append("20_1_leaky")
+model_paths.append("results/wandb/cnn/20_leaky/checkpoints/epoch=24962-val_loss=0.00001.ckpt")
+model_params.append([True,distance_map_std,False,True])
+### Skip co no map
+exps.append("skip_co")
+model_paths.append("results/wandb/cnn/skip_co/checkpoints/epoch=24400-val_loss=0.60961.ckpt")
+model_params.append([False,None,True,False])
+### Skip co map
+exps.append("skip_co_map")
+model_paths.append("results/wandb/cnn/skip_co_map/checkpoints/epoch=23951-val_loss=0.60961.ckpt")
+model_params.append([True,distance_map_std,True,False])
+### Skip co map leaky
+exps.append("skip_co_map_leaky")
+model_paths.append("results/wandb/cnn/skip_co_map_leaky/checkpoints/epoch=11690-val_loss=0.60962.ckpt")
+model_params.append([True,distance_map_std,True,True])
 
-epsmean = np.empty((nb_samples,290,360))
-meanmean = np.empty(nb_samples)
-maxmean = np.empty(nb_samples)
-quantmean = np.empty(nb_samples)
-for i,file in enumerate(os.listdir("data/processed/nemo_tests/train/X/")):
-    xname = "data/processed/nemo_tests/train/X/"+file
-    yname = "data/processed/nemo_tests/train/Y/"+file.split('.')[0]+"_norm_coeffs.npz"
-    X = transfrom(np.load(xname)['arr_0'])
-    Y = transfrom(np.load(yname)['arr_0'])
+for exp, model_path, model_param in zip(exps, model_paths,model_params):
+
+    epsmean = np.empty((nb_samples,290,360))
+    meanmean = np.empty(nb_samples)
+    maxmean = np.empty(nb_samples)
+    quantmean = np.empty(nb_samples)
+
+    use_map = model_param[0]
+    distance_map = model_param[1]
+    use_block = model_param[2]
+    use_leaky = model_param[3]
+
+    for i,file in enumerate(os.listdir("data/processed/nemo_tests/train/X/")):
+        X,Y = load_X_Y(file)
+        eps = compute_eps(X,Y,model_path,std,mean,use_map,distance_map,use_block,use_leaky)
+        epsmean[i,:,:] = eps
+        meanmean[i] = eps.mean()
+        maxmean[i] = eps.max()
+        quantmean[i] = np.quantile(eps[np.nonzero(eps)].flatten(), 0.9999)
+
+
+    mask = np.where(Y[10:-10,10:-10]==0,True,False)
+
+    fig,axs = plt.subplots(figsize=size_im,ncols=1)
+    c = axs.imshow(np.ma.masked_array(np.mean(epsmean,axis=0), mask),origin="lower",vmin=-0.05,vmax=0.05,cmap="seismic")
+    cbar_ax = fig.add_axes([0.266, 0.05, 0.4673, 0.02])
+    cb = plt.colorbar(c,cax=cbar_ax,orientation='horizontal')
+    cb.remove()
+    fig.savefig(save_dir+exp)
+
+
     
-
-    eps = compute_eps(X,Y,model_path,std,mean,True,distance_map_std)
-    epsmean[i,:,:] = eps
-    meanmean[i] = eps.mean()
-    maxmean[i] = eps.max()
-    quantmean[i] = np.quantile(eps[np.nonzero(eps)].flatten(), 0.9999)
-
-
-mask = np.where(Y[10:-10,10:-10]==0,True,False)
-
-fig,axs = plt.subplots(figsize=size_im,ncols=1)
-c = axs.imshow(np.ma.masked_array(np.mean(epsmean,axis=0), mask),origin="lower",vmin=-0.05,vmax=0.05,cmap="seismic")
-cbar_ax = fig.add_axes([0.266, 0.05, 0.4673, 0.02])
-cb = plt.colorbar(c,cax=cbar_ax,orientation='horizontal')
-cb.remove()
-fig.savefig(save_dir+"rot90")
-
-print("Mean:", np.mean(meanmean))
-print("Max:", np.mean(maxmean))
-print("Quant:", np.mean(quantmean))
+    f.write(exp + "\n")
+    f.write("- Mean:  " + str(np.mean(meanmean)) + "\n")
+    f.write("- Max:   " + str(np.mean(maxmean)) + "\n")
+    f.write("- Quant: " + str(np.mean(quantmean)) + "\n\n")

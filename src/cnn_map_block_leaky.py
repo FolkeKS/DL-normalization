@@ -32,7 +32,7 @@ class CNN(pl.LightningModule):
                  n_blocks_filters: int = 64,
                  layers_per_block: int = 2,
                  kernel_size: int = 3,
-                 n_channels: int = 3,
+                 n_channels: int = 4,
                  n_classes: int = 1,
                  data_dir: str = "flat_polecontinent3",
                  standarize_outputs: bool = False,
@@ -87,7 +87,7 @@ class CNN(pl.LightningModule):
         self.layers.append(conv(n_channels, n_blocks_filters, kernel_size, padding_type ))
         for i in range(n_blocks):
             if i == 0:
-                in_channels = n_blocks_filters + 3
+                in_channels = n_blocks_filters + n_channels
             else :
                  in_channels = n_blocks_filters * 2
             self.layers.append(block(layers_per_block, in_channels, n_blocks_filters, kernel_size, padding_type))

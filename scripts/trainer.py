@@ -14,7 +14,7 @@ import torch
 
 from src.unet import Unet
 #from src.cnn import CNN
-import src.cnn as cn
+import src.cnn_block as cn
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.utilities.cli import LightningCLI
