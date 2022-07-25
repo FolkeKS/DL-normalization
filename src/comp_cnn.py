@@ -30,7 +30,7 @@ class CNN(pl.LightningModule):
     def __init__(self,
                  n_hidden_layers: int = 8,
                  kernel_size: int = 3,
-                 n_channels: int = 4,
+                 n_channels: int = 3,
                  n_classes: int = 1,
                  data_dir: str = "flat_polecontinent3",
                  standarize_outputs: bool = False,
@@ -54,7 +54,13 @@ class CNN(pl.LightningModule):
         self.q = q
         self.loss_fn = loss_fn
         self.save_hyperparameters()
-
+        if standarize_outputs:
+            f = open(data_dir+"norms_std_mean.txt")
+            lines = f.readlines()
+            assert len(lines) == 2, f"len {len(lines)}"
+            self.norm_std = float(lines[0])
+            self.norm_mean = float(lines[1])
+            f.close()
 
         def conv(in_channels, out_channels):
             # returns a block compsed of a Convolution layer with ReLU activation function
@@ -62,7 +68,7 @@ class CNN(pl.LightningModule):
                 nn.Conv2d(in_channels, out_channels, kernel_size,
                           padding="valid"),
                 nn.BatchNorm2d(out_channels),
-                nn.LeakyReLU(0.1))
+                nn.ReLU())
         self.layers = nn.ModuleList()
         self.layers.append(conv(self.n_channels, 64))
         for i in range(n_hidden_layers):
@@ -78,6 +84,7 @@ class CNN(pl.LightningModule):
 
     def training_step(self, batch, batch_nb):
         return tools.step(self, batch)
+
 
     def training_epoch_end(self, outputs):
         tools.epoch_end(self, outputs, "train")

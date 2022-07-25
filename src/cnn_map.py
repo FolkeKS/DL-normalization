@@ -23,7 +23,7 @@ import pytorch_lightning as pl
 import importlib
 import src.tools as tools
 # from dataset import DirDataset
-
+import ast
 
 class CNN(pl.LightningModule):
     # image_size = 64
@@ -54,13 +54,13 @@ class CNN(pl.LightningModule):
         self.q = q
         self.loss_fn = loss_fn
         self.save_hyperparameters()
-        if standarize_outputs:
-            f = open(data_dir+"norms_std_mean.txt")
-            lines = f.readlines()
-            assert len(lines) == 2, f"len {len(lines)}"
-            self.norm_std = float(lines[0])
-            self.norm_mean = float(lines[1])
-            f.close()
+        # if standarize_outputs:
+        #     f = open(data_dir+"dict_std_mean.txt")
+        #     lines = f.readlines()
+        #     assert len(lines) == 2, f"len {len(lines)}"
+        #     self.dict_std = ast.literal_eval(lines[0][:-1])
+        #     self.dict_mean = ast.literal_eval(lines[1])
+        #     f.close()
 
         def conv(in_channels, out_channels):
             # returns a block compsed of a Convolution layer with ReLU activation function
@@ -78,9 +78,10 @@ class CNN(pl.LightningModule):
             nn.Conv2d(64, self.n_classes, kernel_size, padding="valid")))
 
     def forward(self, x):
+
         for layer in self.layers:
             x = layer(x)
-        return x
+        return x #* self.dict_std['norm_coeffs'] + self.dict_mean['norm_coeffs']
 
     def training_step(self, batch, batch_nb):
         return tools.step(self, batch)
