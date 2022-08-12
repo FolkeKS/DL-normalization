@@ -12,6 +12,8 @@ from argparse import ArgumentParser
 # from collections import OrderedDict
 
 import torch
+torch.set_printoptions(precision=10)
+
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
@@ -74,7 +76,7 @@ class CNN(pl.LightningModule):
                 nn.Conv2d(in_channels, out_channels, kernel_size,
                           padding=padding_type),
                 nn.BatchNorm2d(out_channels),
-                nn.ReLU())
+                nn.ELU())
 
         def block(layers_per_block, in_channels, out_channels, kernel_size, padding_type):
             block = nn.ModuleList()

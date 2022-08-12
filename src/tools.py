@@ -8,12 +8,13 @@ Created on Mon Jun 27 10:02:24 2022
 import torch
 import torchvision.transforms as transforms
 import numpy as np
+torch.set_printoptions(precision=10)
 
 def masked_mse(inputs, targets):
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
+    # assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     # mask defined where target equals zero
     mask_true = (~targets.eq(0.)).to(torch.float32)
     masked_squared_error = torch.square(torch.flatten(
@@ -26,7 +27,7 @@ def masked_mse_eps(inputs, targets, standartize, std=1, mean=0, square=False):
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
+    # assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     mask_true = (~targets.eq(0.)).to(torch.uint8)
     if standartize:
         targets = targets*std + mean
@@ -44,7 +45,7 @@ def masked_relative_error(inputs, targets, q=None):
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
-    assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
+    # assert (W == 360 and H == 290) or (W == 290 and H == 360), f"W = {W} H = {H}"
     
     # mask is true where normalization coefficients equals zero
     mask_true = (~targets.eq(0.)).to(torch.uint8)
@@ -58,6 +59,7 @@ def masked_relative_error(inputs, targets, q=None):
     masked_max = torch.max(masked_abs_rel_error)
 
     rmse = torch.sqrt(masked_mse_eps(inputs, targets, standartize=False, square=True))
+    print(masked_max, masked_mean_abs, q_res)
     return masked_mean_abs, masked_max, q_res, rmse
 
 
@@ -76,7 +78,7 @@ def epoch_end(self, outputs, step):
     max_rel = torch.stack([x['rel_max'] for x in outputs]).max()
     avg_rmse = torch.stack([x['rmse'] for x in outputs]).mean()
     avg_q = torch.stack([x['rel_'+str(self.q) + '_quantile'] for x in outputs]).mean()
-
+    print("Avg loss:", avg_loss)
     self.log(step+"_loss", avg_loss)
     self.log(step+"_mean", avg_mean)
     self.log(step+"_max", max_rel)
@@ -115,10 +117,10 @@ def step(self, batch):
             y = 1/y
         if not self.predict_squared:
             y_hat = y_hat**2
+            y = y**2
 
         rel_mean, rel_max, q_res, rmse = masked_relative_error(
-                    y_hat, y**2, self.q)
-
+                    y_hat, y, self.q)
         return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res, 'rmse':rmse}
 
 def configure_optimizers(self):

@@ -111,7 +111,7 @@ def compute_eps(X,Y,std_test, mean_test,std_train, mean_train, model, use_map):
 
     return eps
 
-
+distance_map = np.load("data/sign_distance_map.npy")
 distance_map_std = np.load("data/sign_distance_map_std.npy")
 model_paths = []
 exps = []
@@ -121,42 +121,42 @@ model_params = []
 exps.append("10_1")
 model_paths.append("results/wandb/cnn/10_1/checkpoints/epoch=47888-val_loss=0.00001.ckpt")
 model_params.append([True,distance_map_std,False,False,None,False, "nemonemo_bnd_perten10_samples_standardize",10])
-### 10 + rot_90
-exps.append("10_rot90")
-model_paths.append("results/wandb/cnn/rot90/checkpoints/epoch=10570-val_loss=0.00076.ckpt")
-model_params.append([True,distance_map_std,False,False,None,False,"nemonemo_bnd_perten10_samples_standardize",10])
-### 10 + fliplr
-exps.append("10_fliplr")
-model_paths.append("results/wandb/cnn/flip_hor_10/checkpoints/epoch=23421-val_loss=0.00001.ckpt")
-model_params.append([True,distance_map_std,False,False,None,False,"nemonemo_bnd_perten10_samples_standardize",10])
-### 20
-exps.append("20_1")
-model_paths.append("results/wandb/cnn/20_1/checkpoints/epoch=24910-val_loss=0.00001.ckpt")
-model_params.append([True,distance_map_std,False,False,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
-### 20 LeakyReLU 0.1
-exps.append("20_1_leaky_0_1")
-model_paths.append("results/wandb/cnn/20_leaky/checkpoints/epoch=24962-val_loss=0.00001.ckpt")
-model_params.append([True,distance_map_std,False,True,0.1,False,"nemonemo_bnd_perten20_samples_standardize",10])
-### 20 LeakyReLU 0.2
-exps.append("20_1_leaky_0_2")
-model_paths.append("results/wandb/cnn/20_leaky_02/checkpoints/epoch=24675-val_loss=0.00001.ckpt")
-model_params.append([True,distance_map_std,False,True,0.2,False,"nemonemo_bnd_perten20_samples_standardize",10])
-### Skip co no map
-exps.append("skip_co")
-model_paths.append("results/wandb/cnn/skip_co/checkpoints/epoch=24400-val_loss=0.60961.ckpt")
-model_params.append([False,None,True,False,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
-### Skip co map
-exps.append("skip_co_map")
-model_paths.append("results/wandb/cnn/skip_co_map/checkpoints/epoch=23951-val_loss=0.60961.ckpt")
-model_params.append([True,distance_map_std,True,False,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
-### Skip co V2 map
-exps.append("skip_co_v2_map")
-model_paths.append("results/wandb/cnn/block_v2/checkpoints/epoch=24505-val_loss=0.60961.ckpt")
-model_params.append([True,distance_map_std,True,False,None,True,"nemonemo_bnd_perten20_samples_standardize",10])
-### Skip co map leaky
-exps.append("skip_co_map_leaky")
-model_paths.append("results/wandb/cnn/skip_co_map_leaky/checkpoints/epoch=11690-val_loss=0.60962.ckpt")
-model_params.append([True,distance_map_std,True,True,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### 10 + rot_90
+# exps.append("10_rot90")
+# model_paths.append("results/wandb/cnn/rot90/checkpoints/epoch=10570-val_loss=0.00076.ckpt")
+# model_params.append([True,distance_map_std,False,False,None,False,"nemonemo_bnd_perten10_samples_standardize",10])
+# ### 10 + fliplr
+# exps.append("10_fliplr")
+# model_paths.append("results/wandb/cnn/flip_hor_10/checkpoints/epoch=23421-val_loss=0.00001.ckpt")
+# model_params.append([True,distance_map_std,False,False,None,False,"nemonemo_bnd_perten10_samples_standardize",10])
+# ### 20
+# exps.append("20_1")
+# model_paths.append("results/wandb/cnn/20_1/checkpoints/epoch=24910-val_loss=0.00001.ckpt")
+# model_params.append([True,distance_map_std,False,False,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### 20 LeakyReLU 0.1
+# exps.append("20_1_leaky_0_1")
+# model_paths.append("results/wandb/cnn/20_leaky/checkpoints/epoch=24962-val_loss=0.00001.ckpt")
+# model_params.append([True,distance_map_std,False,True,0.1,False,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### 20 LeakyReLU 0.2
+# exps.append("20_1_leaky_0_2")
+# model_paths.append("results/wandb/cnn/20_leaky_02/checkpoints/epoch=24675-val_loss=0.00001.ckpt")
+# model_params.append([True,distance_map_std,False,True,0.2,False,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### Skip co no map
+# exps.append("skip_co")
+# model_paths.append("results/wandb/cnn/skip_co/checkpoints/epoch=24400-val_loss=0.60961.ckpt")
+# model_params.append([False,None,True,False,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### Skip co map
+# exps.append("skip_co_map")
+# model_paths.append("results/wandb/cnn/skip_co_map/checkpoints/epoch=23951-val_loss=0.60961.ckpt")
+# model_params.append([True,distance_map_std,True,False,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### Skip co V2 map
+# exps.append("skip_co_v2_map")
+# model_paths.append("results/wandb/cnn/block_v2/checkpoints/epoch=24505-val_loss=0.60961.ckpt")
+# model_params.append([True,distance_map_std,True,False,None,True,"nemonemo_bnd_perten20_samples_standardize",10])
+# ### Skip co map leaky
+# exps.append("skip_co_map_leaky")
+# model_paths.append("results/wandb/cnn/skip_co_map_leaky/checkpoints/epoch=11690-val_loss=0.60962.ckpt")
+# model_params.append([True,distance_map_std,True,True,None,False,"nemonemo_bnd_perten20_samples_standardize",10])
 
 
 f = open(data_dir+"dict_std_mean.txt")
@@ -170,7 +170,7 @@ f.close()
 f = open(save_dir+'metrics.txt', 'w')
 for exp, model_path, model_param in zip(exps, model_paths,model_params):
 
-    epsmean = np.empty((nb_samples,290,360))
+    alleps = np.empty((nb_samples,290,360))
     meanmean = np.empty(nb_samples)
     maxmean = np.empty(nb_samples)
     quantmean = np.empty(nb_samples)
@@ -209,7 +209,7 @@ for exp, model_path, model_param in zip(exps, model_paths,model_params):
 
 
         eps = compute_eps(X,Y,dict_std_test['norm_coeffs'],dict_mean_test['norm_coeffs'],dict_std_train['norm_coeffs'],dict_mean_train['norm_coeffs'],model,use_map)
-        epsmean[i,:,:] = eps
+        alleps[i,:,:] = eps
         meanmean[i]  = eps.mean()
         maxmean[i]   = eps.max()
         quantmean[i] = np.quantile(eps[np.nonzero(eps)].flatten(), 0.9999)
@@ -218,7 +218,7 @@ for exp, model_path, model_param in zip(exps, model_paths,model_params):
     mask = np.where(Y==0,True,False)
 
     fig,axs = plt.subplots(figsize=size_im,ncols=1)
-    c = axs.imshow(np.ma.masked_array(np.mean(epsmean,axis=0), mask),origin="lower",vmin=-0.05,vmax=0.05,cmap="seismic")
+    c = axs.imshow(np.ma.masked_array(np.mean(alleps,axis=0), mask),origin="lower",vmin=-0.05,vmax=0.05,cmap="seismic")
     cbar_ax = fig.add_axes([0.266, 0.05, 0.4673, 0.02])
     cb = plt.colorbar(c,cax=cbar_ax,orientation='horizontal')
     cb.remove()
@@ -233,6 +233,9 @@ for exp, model_path, model_param in zip(exps, model_paths,model_params):
     f.write("- Quant: " + str(np.mean(quantmean)) + "\n")
     f.write("- Max:   " + str(np.mean(maxmean)) + "\n")
     f.write("- Mean:  " + str(np.mean(meanmean)) + "\n\n")
-    
+    np.savez_compressed(save_dir+"eps"+exp, alleps) 
+
+
+
 
 print("--- %s seconds ---" % (time.time() - start_time))

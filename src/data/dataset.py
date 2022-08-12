@@ -30,9 +30,6 @@ class DirDataset(Dataset):
 
         X = torch.from_numpy(np.load(X_files[0])['arr_0']).float()
         Y = torch.from_numpy(np.load(Y_files[0])['arr_0']).float()
-        
-        X = transforms.CenterCrop([310, 380])(X)
-        Y = transforms.CenterCrop([310, 380])(Y)
         # Make input image dimensions divisible by 32
         return X, \
             Y

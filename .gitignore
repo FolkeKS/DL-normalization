@@ -1,6 +1,7 @@
 *.DS_Store
 *.pyc
-data/*
+data/processed/*
+data/raw/*
 src.egg-info
 wandb/*
 wandb/debug-*

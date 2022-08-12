@@ -8,11 +8,12 @@ Created on Tue Jul 12 14:58:10 2022
 import shutil
 import numpy as np
 import os
+import ast
 
 def addMap(X, dist_map):
     _,H,W  = X.shape
 
-    Y    = np.empty((4,310,380))
+    Y    = np.empty((4,H,W))
     Y[0] = X[0,:,:]
     Y[1] = X[1,:,:]
     Y[2] = X[2,:,:]
@@ -98,11 +99,15 @@ def flip_hor(X):
     X[3] = dist_map
     return X
 
-folder_name = "nemonemo_bnd_perten1_samples_standardize"
+folder_name = "newdata"
 data_dir = "data/processed/"+folder_name
-dist_map = np.load("data/sign_distance_map_std.npy")
+dist_map = np.load("data/sign_dist_map_std.npz")['arr_0']
 dst_dir = data_dir+"_augmented"
 shutil.copytree(data_dir, dst_dir)
+
+lines = open(   data_dir+"/dict_std_mean.txt").readlines()
+dict_std = ast.literal_eval(lines[0][:-1])
+dict_mean = ast.literal_eval(lines[1])
 
 fliphor  = True
 flipvert = True
@@ -123,7 +128,12 @@ for file in os.listdir(data_dir+"/train/X/"):
         #rota 90
         if rot90:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_90" 
-            np.savez_compressed(saveX, rota_90(X))
+            Xstd = X
+            Xstd[0] = X[0,:,:] * dict_std['alpha_i_minus'] + dict_mean['alpha_i_minus']
+            Xstd[0,:,:] = (X[0,:,:] - dict_mean['alpha_j_minus']) / dict_std['alpha_j_minus']
+            Xstd[1] = X[1,:,:] * dict_std['alpha_j_minus'] + dict_mean['alpha_j_minus']
+            Xstd[1,:,:] = (X[1,:,:] - dict_mean['alpha_i_minus']) / dict_std['alpha_i_minus']
+            np.savez_compressed(saveX, rota_90(Xstd))
         #rota 180
         if rot180:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_180" 
@@ -131,7 +141,12 @@ for file in os.listdir(data_dir+"/train/X/"):
         #rota 270
         if rot270:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_270" 
-            np.savez_compressed(saveX, rota_270(X))
+            Xstd = X
+            Xstd[0] = X[0,:,:] * dict_std['alpha_i_minus'] + dict_mean['alpha_i_minus']
+            Xstd[0,:,:] = (X[0,:,:] - dict_mean['alpha_j_minus']) / dict_std['alpha_j_minus']
+            Xstd[1] = X[1,:,:] * dict_std['alpha_j_minus'] + dict_mean['alpha_j_minus']
+            Xstd[1,:,:] = (X[1,:,:] - dict_mean['alpha_i_minus']) / dict_std['alpha_i_minus']
+            np.savez_compressed(saveX, rota_270(Xstd))
         #flip hor
         if fliphor:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_flip_hor" 
