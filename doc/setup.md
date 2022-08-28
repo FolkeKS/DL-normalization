@@ -1,36 +1,36 @@
 
 # Table of Contents
 
-1.  [Install the project](#org9a123db)
-2.  [Set up conda environment:](#org419f8a5)
-    1.  [Create the environment (might be slow):](#orgb034c73)
-    2.  [Activate the environment:](#org7f8e90c)
-    3.  [Setup project:](#orgf0d1623)
-3.  [Set up wandb for experiment tracking:](#org13873e0)
-4.  [Train a model :](#org5ad3e03)
-    1.  [On a computer](#org398fc5c)
-    2.  [On a cluster using SLURM](#org0c696ad)
-    3.  [Configurations](#org2f6016a)
-5.  [Modify the code](#org5f75c43)
-6.  [Computing the metrics on the test data set](#orge996308)
-7.  [Compute the sign distance map](#orgd122148)
-8.  [Perform the data augmentation](#org513e2a3)
+1.  [Install the project](#org989aaa5)
+2.  [Set up conda environment:](#orgdf21c8a)
+    1.  [Create the environment (might be slow):](#org4efc28b)
+    2.  [Activate the environment:](#orgdf6df53)
+    3.  [Setup project:](#org0585ea2)
+3.  [Set up wandb for experiment tracking:](#org22d4517)
+4.  [Train a model :](#orgc583404)
+    1.  [On a computer](#org735486a)
+    2.  [On a cluster using SLURM](#org910c3a6)
+    3.  [Configurations](#orgbe2f6cf)
+5.  [Modify the code](#org59849fb)
+6.  [Computing the metrics on the test data set](#orgd91dc75)
+7.  [Compute the sign distance map](#orgfd17094)
+8.  [Perform the data augmentation](#orgbe4142d)
 
 
 
-<a id="org9a123db"></a>
+<a id="org989aaa5"></a>
 
 # Install the project
 
     git clone https://github.com/FolkeKS/DL-normalization.git
 
 
-<a id="org419f8a5"></a>
+<a id="orgdf21c8a"></a>
 
 # Set up conda environment:
 
 
-<a id="orgb034c73"></a>
+<a id="org4efc28b"></a>
 
 ## Create the environment (might be slow):
 
@@ -45,21 +45,21 @@
     conda config - -set channel_priority true
 
 
-<a id="org7f8e90c"></a>
+<a id="orgdf6df53"></a>
 
 ## Activate the environment:
 
     bash conda activate DL-normalization
 
 
-<a id="orgf0d1623"></a>
+<a id="org0585ea2"></a>
 
 ## Setup project:
 
     bash pip install -e .
 
 
-<a id="org13873e0"></a>
+<a id="org22d4517"></a>
 
 # Set up wandb for experiment tracking:
 
@@ -70,26 +70,26 @@
         wandb login
 
 
-<a id="org5ad3e03"></a>
+<a id="orgc583404"></a>
 
 # Train a model :
 
 
-<a id="org398fc5c"></a>
+<a id="org735486a"></a>
 
 ## On a computer
 
     python scripts/trainer.py fit --config  configs/demo.yaml
 
 
-<a id="org0c696ad"></a>
+<a id="org910c3a6"></a>
 
 ## On a cluster using SLURM
 
     sbatch scripts/train.bash
 
 
-<a id="org2f6016a"></a>
+<a id="orgbe2f6cf"></a>
 
 ## Configurations
 
@@ -113,7 +113,6 @@ The model part, shown below, describes the parameter to instantiate the class CN
 
 This is the equivalent to
 
-    This is the equivalent to:
     class CNN(pl.LightningModule):
         def __init__(self,
             n_blocks: int = 4,
@@ -146,11 +145,11 @@ The data part describes the parameter to instantiate the class DirLightDataset i
 -   It is also possible to choose how the best checkpoint is selected (lines 20-35), we choose the checkpoint that minimizes the loss in validation, but other choices are possible as choosing the one minimizing the quantile. However, we have not found how to use two strategies for the same run.
 
 
-<a id="org5f75c43"></a>
+<a id="org59849fb"></a>
 
 # Modify the code
 
-<a id="org0726ccd"></a>
+<a id="orge9d26f1"></a>
 The model is loaded in scripts/trainer.py. Modifications are to be done in the config file but there are also modifications to make in the module loading the data in <src/data/dataset.py>:
 
 -   adjust the padding, by default the padding is 31 for the latitude and 28 for the longitude. The images are cropped on the fly, the dimension of the image taken by the CNN is $4 \times 292+2\ell \times 360 + 2\ell$ with $\ell$ the number of layers
@@ -178,7 +177,7 @@ For computational time, these modifications should be made to the data directly 
             Y
 
 
-<a id="orge996308"></a>
+<a id="orgd91dc75"></a>
 
 # Computing the metrics on the test data set
 
@@ -192,16 +191,16 @@ We compute the mean and standard deviation of the mean/max/quantile 99,99% of th
 4.  Class: the model loaded with the correct src
 
 
-<a id="orgd122148"></a>
+<a id="orgfd17094"></a>
 
 # Compute the sign distance map
 
 The sign distance map is computed in the notebook <notebooks/Distance_map.ipynb>. We use the method `scipy.ndimage.distance_transform_bf` to compute the distance [(doc link)](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.distance_transform_bf.html).
 
 
-<a id="org513e2a3"></a>
+<a id="orgbe4142d"></a>
 
 # Perform the data augmentation
 
-The script to use is <src/data/augmentation.py> and the combinations of transformations are tested in the notebook <notebooks/test_augmentation.ipynb>. As the sign distance map is added to the input data during the augmentation, it is important to not add it an other time as described in Section [5](#org0726ccd).
+The script to use is <src/data/augmentation.py> and the combinations of transformations are tested in the notebook <notebooks/test_augmentation.ipynb>. As the sign distance map is added to the input data during the augmentation, it is important to not add it an other time as described in Section [5](#orge9d26f1).
 

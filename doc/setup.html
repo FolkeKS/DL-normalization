@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Run the project</title>
+<meta name="author" content="Guillaume Coulaud" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Run the project</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org1884126">1. Install the project</a></li>
+<li><a href="#orga36eb0a">2. Set up conda environment:</a>
+<ul>
+<li><a href="#org5cca4a6">2.1. Create the environment (might be slow):</a></li>
+<li><a href="#org55b175d">2.2. Activate the environment:</a></li>
+<li><a href="#orgc95904e">2.3. Setup project:</a></li>
+</ul>
+</li>
+<li><a href="#orga8187e1">3. Set up wandb for experiment tracking:</a></li>
+<li><a href="#org9c69bf1">4. Train a model :</a>
+<ul>
+<li><a href="#org50d5cb1">4.1. On a computer</a></li>
+<li><a href="#org63c02f8">4.2. On a cluster using SLURM</a></li>
+<li><a href="#org1ec61fb">4.3. Configurations</a></li>
+</ul>
+</li>
+<li><a href="#orgf576472">5. Modify the code</a></li>
+<li><a href="#org4acb6b0">6. Computing the metrics on the test data set</a></li>
+<li><a href="#org7803b63">7. Compute the sign distance map</a></li>
+<li><a href="#org768789f">8. Perform the data augmentation</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1884126" class="outline-2">
+<h2 id="org1884126"><span class="section-number-2">1.</span> Install the project</h2>
+<div class="outline-text-2" id="text-1">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #ECBE7B;">git</span> clone https://github.com/FolkeKS/DL-normalization.git
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga36eb0a" class="outline-2">
+<h2 id="orga36eb0a"><span class="section-number-2">2.</span> Set up conda environment:</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org5cca4a6" class="outline-3">
+<h3 id="org5cca4a6"><span class="section-number-3">2.1.</span> Create the environment (might be slow):</h3>
+<div class="outline-text-3" id="text-2-1">
+<div class="org-src-container">
+<pre class="src src-bash">conda env create --file environment.yml
+</pre>
+</div>
+<ul class="org-ul">
+<li>If the installation is stuck on <code>Solving environment: |</code> try:</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-bash">conda config --set channel_priority strict
+</pre>
+</div>
+<ul class="org-ul">
+<li>Revert with:</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-bash">conda config - -set channel_priority true
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org55b175d" class="outline-3">
+<h3 id="org55b175d"><span class="section-number-3">2.2.</span> Activate the environment:</h3>
+<div class="outline-text-3" id="text-2-2">
+<pre class="example">
+bash conda activate DL-normalization
+</pre>
+</div>
+</div>
+<div id="outline-container-orgc95904e" class="outline-3">
+<h3 id="orgc95904e"><span class="section-number-3">2.3.</span> Setup project:</h3>
+<div class="outline-text-3" id="text-2-3">
+<pre class="example">
+bash pip install -e .
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga8187e1" class="outline-2">
+<h2 id="orga8187e1"><span class="section-number-2">3.</span> Set up wandb for experiment tracking:</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>Sign up at <a href="https://wandb.ai/site">https://wandb.ai/site</a> and log in</li>
+<li>Find your API-key at <a href="https://wandb.ai/authorize">https://wandb.ai/authorize</a></li>
+<li><p>
+With your conda environment activated, run the following command and provide API-key
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">    wandb login
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9c69bf1" class="outline-2">
+<h2 id="org9c69bf1"><span class="section-number-2">4.</span> Train a model :</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-org50d5cb1" class="outline-3">
+<h3 id="org50d5cb1"><span class="section-number-3">4.1.</span> On a computer</h3>
+<div class="outline-text-3" id="text-4-1">
+<div class="org-src-container">
+<pre class="src src-bash">python scripts/trainer.py fit --config  configs/demo.yaml
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org63c02f8" class="outline-3">
+<h3 id="org63c02f8"><span class="section-number-3">4.2.</span> On a cluster using SLURM</h3>
+<div class="outline-text-3" id="text-4-2">
+<div class="org-src-container">
+<pre class="src src-bash">sbatch scripts/train.bash
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1ec61fb" class="outline-3">
+<h3 id="org1ec61fb"><span class="section-number-3">4.3.</span> Configurations</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+The configugration can be modified in the yaml files in <a href="configs/">configs/</a>
+The model part, shown below, describes the parameter to instantiate the class CNN in <a href="src/cnn.py">src/cnn.py</a>.
+</p>
+<div class="org-src-container">
+<pre class="src src-python">    n_blocks: <span style="color: #da8548; font-weight: bold;">4</span>
+    n_blocks_filters: <span style="color: #da8548; font-weight: bold;">64</span>
+    layers_per_block: <span style="color: #da8548; font-weight: bold;">2</span>
+    kernel_size: <span style="color: #da8548; font-weight: bold;">3</span>
+    n_channels: <span style="color: #da8548; font-weight: bold;">4</span>
+    n_classes: <span style="color: #da8548; font-weight: bold;">1</span>
+    q: <span style="color: #da8548; font-weight: bold;">0.9999</span>
+    standarize_outputs: true
+    predict_squared: false
+    predict_inverse: false
+    loss_fn: masked_mse
+    padding_type: <span style="color: #98be65;">"valid"</span>
+    optimizer: Adam
+    data_dir: data/processed/sections/
+
+</pre>
+</div>
+<p>
+This is the equivalent to
+</p>
+<div class="org-src-container">
+<pre class="src src-python">    <span style="color: #51afef;">class</span> <span style="color: #ECBE7B;">CNN</span>(pl.LightningModule):
+        <span style="color: #51afef;">def</span> <span style="color: #c678dd;">__init__</span>(<span style="color: #51afef;">self</span>,
+            n_blocks: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">4</span>,
+            n_blocks_filters: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">64</span>,
+            layers_per_block: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">2</span>,
+            kernel_size: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">3</span>,
+            n_channels: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">4</span>,
+            n_classes: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">1</span>,
+            q: <span style="color: #c678dd;">float</span> = <span style="color: #da8548; font-weight: bold;">0.9999</span>,
+            standarize_outputs: <span style="color: #c678dd;">bool</span> = <span style="color: #a9a1e1;">False</span>,
+            predict_squared: <span style="color: #c678dd;">bool</span> = <span style="color: #a9a1e1;">False</span>,
+            predict_inverse: <span style="color: #c678dd;">bool</span> = <span style="color: #a9a1e1;">False</span>,
+            loss_fn: <span style="color: #c678dd;">str</span> = <span style="color: #98be65;">"masked_mse"</span>,
+            padding_type: <span style="color: #c678dd;">str</span> = <span style="color: #98be65;">"valid"</span>,
+            optimizer: <span style="color: #c678dd;">str</span> = <span style="color: #98be65;">"Adam"</span>,
+            data_dir: <span style="color: #c678dd;">str</span> = <span style="color: #98be65;">"data/processed/newdata/"</span>,
+            **kwargs):
+</pre>
+</div>
+
+<p>
+The data part describes the parameter to instantiate the class DirLightDataset in <a href="src/data/dataset.py">src/data/dataset.py</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">    <span style="color: #51afef;">class</span> <span style="color: #ECBE7B;">DirLightDataset</span>(pl.LightningDataModule):
+        <span style="color: #51afef;">def</span> <span style="color: #c678dd;">__init__</span>(<span style="color: #51afef;">self</span>,
+            batch_size: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">1</span>,
+            data_dir: <span style="color: #c678dd;">str</span> = <span style="color: #98be65;">"data/processed/newdata/"</span>,
+            num_workers: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">0</span>,
+            gpus: <span style="color: #c678dd;">int</span> = <span style="color: #da8548; font-weight: bold;">0</span>):
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>In order to make deterministic runs we set put <code>seed_everything: 42</code> (line 1) and <code>deterministic: true</code> (line 78).</li>
+<li>To continue a run after it has been stopped we set  <code>ckpt_path: "results/wandb/cnn/36c5vu01/checkpoints/last.ckpt"</code> (line 115). With <code>"cnn/"</code> the wandb project in which the run was created, and <code>"36c5vu01"</code> the &rsquo;id&rsquo; of the run. We also set <code>version: 36c5vu01</code> (line 11) to make wandb continue the training in the run instead of creating a new run. The <code>global_step</code> variable will be reset, so the charts must be visualized with <code>epoch</code> or <code>step</code> as x-axis.</li>
+<li>It is also possible to choose how the best checkpoint is selected (lines 20-35), we choose the checkpoint that minimizes the loss in validation, but other choices are possible as choosing the one minimizing the quantile. However, we have not found how to use two strategies for the same run.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf576472" class="outline-2">
+<h2 id="orgf576472"><span class="section-number-2">5.</span> Modify the code</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+<a id="org05b49a0"></a>
+The model is loaded in scripts/trainer.py. Modifications are to be done in the config file but there are also modifications to make in the module loading the data in <a href="src/data/dataset.py">src/data/dataset.py</a>:
+</p>
+<ul class="org-ul">
+<li>adjust the padding, by default the padding is 31 for the latitude and 28 for the longitude. The images are cropped on the fly, the dimension of the image taken by the CNN is \(4 \times 292+2\ell \times 360 + 2\ell\) with \(\ell\) the number of layers</li>
+<li>adding the sign distance map</li>
+</ul>
+<p>
+For computational time, these modifications should be made to the data directly before starting the training.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">    <span style="color: #51afef;">class</span> <span style="color: #ECBE7B;">DirDataset</span>(Dataset):
+    <span style="color: #51afef;">def</span> <span style="color: #c678dd;">__getitem__</span>(<span style="color: #51afef;">self</span>, i):
+        <span style="color: #dcaeea;">idx</span> = <span style="color: #51afef;">self</span>.ids[i]
+        <span style="color: #dcaeea;">X_files</span> = glob.glob(os.path.join(<span style="color: #51afef;">self</span>.X_dir, idx+<span style="color: #98be65;">'.*'</span>))
+        <span style="color: #dcaeea;">Y_files</span> = glob.glob(os.path.join(<span style="color: #51afef;">self</span>.Y_dir, idx+<span style="color: #98be65;">'_norm_coeffs.*'</span>))
+    <span style="color: #5B6268;">#</span><span style="color: #5B6268;">Load the input / true data</span>
+        <span style="color: #dcaeea;">X</span> = torch.from_numpy(np.load(X_files[<span style="color: #da8548; font-weight: bold;">0</span>])[<span style="color: #98be65;">'arr_0'</span>]).<span style="color: #c678dd;">float</span>()
+        <span style="color: #dcaeea;">Y</span> = torch.from_numpy(np.load(Y_files[<span style="color: #da8548; font-weight: bold;">0</span>])[<span style="color: #98be65;">'arr_0'</span>]).<span style="color: #c678dd;">float</span>()
+    <span style="color: #5B6268;">#</span><span style="color: #5B6268;">Load the distance map</span>
+        <span style="color: #dcaeea;">distance_map</span> = np.load(<span style="color: #98be65;">"data/python_sign_dist_map_std.npz"</span>)[<span style="color: #98be65;">'arr_0'</span>]
+        <span style="color: #dcaeea;">distance_map</span> = torch.from_numpy(distance_map).<span style="color: #c678dd;">float</span>()
+    <span style="color: #5B6268;">#</span><span style="color: #5B6268;">Crop the input data</span>
+        <span style="color: #dcaeea;">distance_map</span> = transforms.CenterCrop([<span style="color: #da8548; font-weight: bold;">200</span>, <span style="color: #da8548; font-weight: bold;">360</span>+<span style="color: #da8548; font-weight: bold;">2</span>*<span style="color: #da8548; font-weight: bold;">10</span>])(distance_map)
+        <span style="color: #dcaeea;">X</span> = transforms.CenterCrop([<span style="color: #da8548; font-weight: bold;">200</span>, <span style="color: #da8548; font-weight: bold;">360</span>+<span style="color: #da8548; font-weight: bold;">2</span>*<span style="color: #da8548; font-weight: bold;">10</span>])(X)
+    <span style="color: #5B6268;">#</span><span style="color: #5B6268;">Add the distance map</span>
+        <span style="color: #dcaeea;">X</span> = torch.cat((X,torch.unsqueeze(distance_map, <span style="color: #da8548; font-weight: bold;">0</span>)),<span style="color: #da8548; font-weight: bold;">0</span>)
+        <span style="color: #51afef;">return</span> X, \
+            Y
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org4acb6b0" class="outline-2">
+<h2 id="org4acb6b0"><span class="section-number-2">6.</span> Computing the metrics on the test data set</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+As explained in the report, we used one data set for the python data two data sets <b>Partial std = finaldata</b> and <b>Full std = newdata</b> for the Nemovar data. However, for the <b>Partial std</b> data set the training data were standardized using 10 samples while the test data were standardized using 180 samples. So, to compute the metrics the test data had to be destandardized and then restandardized. For <b>Full std</b> all the data are standarized using the 10 training samples.
+We compute the mean and standard deviation of the mean/max/quantile 99,99% of the absolute relative error over the test dataset. We save the tensor of the relative error for each sample and save an image of the mean of the relative error. The code and results are in the repository <a href="results/test_metrics/">results/test_metrics/</a> each repository corresponds to a data set. To run the computation of the metrics for the root directory of the project the python script. The configuration of the runs is added to a list <code>model_params</code>, each element of this list is a list with the index corresponding to:
+</p>
+<ol class="org-ol">
+<li value="0">Boolean: compute or not the metrics</li>
+<li>Boolean: if the run uses the sign distance map</li>
+<li>Numpy array: the sign distance map</li>
+<li>Int: number of layers</li>
+<li>Class: the model loaded with the correct src</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org7803b63" class="outline-2">
+<h2 id="org7803b63"><span class="section-number-2">7.</span> Compute the sign distance map</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+The sign distance map is computed in the notebook <a href="notebooks/Distance_map.ipynb">notebooks/Distance_map.ipynb</a>. We use the method <code>scipy.ndimage.distance_transform_bf</code> to compute the distance <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.distance_transform_bf.html">(doc link)</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org768789f" class="outline-2">
+<h2 id="org768789f"><span class="section-number-2">8.</span> Perform the data augmentation</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+The script to use is <a href="src/data/augmentation.py">src/data/augmentation.py</a> and the combinations of transformations are tested in the notebook <a href="notebooks/test_augmentation.ipynb">notebooks/test_augmentation.ipynb</a>. As the sign distance map is added to the input data during the augmentation, it is important to not add it an other time as described in Section <a href="#org05b49a0">5</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-08-26 ven. 12:00</p>
+<p class="author">Author: Guillaume Coulaud</p>
+</div>
+</body>
+</html>

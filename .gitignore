@@ -5,8 +5,5 @@ data/raw/*
 src.egg-info
 wandb/*
 wandb/debug-*
-notebooks/report-*
-notebooks/*
-notebooks/plot_*
-notebooks/Untitled*
-
+results/test_metrics/*/*.npz
+results/test_metrics/*/*.png

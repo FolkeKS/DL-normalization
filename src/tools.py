@@ -11,6 +11,14 @@ import numpy as np
 torch.set_printoptions(precision=10)
 
 def masked_mse(inputs, targets):
+    """Computes the Mean Square Error between the estimation and the true value of gamma
+
+    Args:
+        inputs (Pytorch tensor): estimated value of $\gamma$
+        targets (Pytorch tensor): the true value of $\gamma$
+    Returns:
+        float: MSE gamma gamma_hat
+    """    
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
@@ -23,6 +31,19 @@ def masked_mse(inputs, targets):
     return masked_mse
 
 def masked_mse_eps(inputs, targets, standartize, std=1, mean=0, square=False):
+    """Computes the mean masked squared relative error epsilon
+
+    Args:
+        inputs (Pytorch tensor): Estimated value of $\gamma$
+        targets (Pytorch tensor): True value of $\gamma$
+        standartize (boolean): if the inputs/targets are standardized
+        std (int, optional): std value used for the standardization. Defaults to 1.
+        mean (int, optional): mean used for the standardization_. Defaults to 0.
+        square (bool, optional): if the inputs/targets are in squares. Defaults to False.
+
+    Returns:
+        float: returns the mean of the masked relative error 
+    """    
     # |E[eps^2]
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
@@ -42,6 +63,16 @@ def masked_mse_eps(inputs, targets, standartize, std=1, mean=0, square=False):
     return mse
 
 def masked_relative_error(inputs, targets, q=None):
+    """Computes the metrics of epsilon: max, mean, quantile, rmse
+
+    Args:
+        inputs (Pytorch tensor): Estimated value of $\gamma$
+        targets (Pytorch tensor): True value of $\gamma$
+        q (int, optional): Quantile to consider. Defaults to None.
+
+    Returns:
+        (float*float*float*float): the metrics
+    """    
     _, _, H, W = inputs.shape
     # crop targets in case they are padded
     targets = transforms.CenterCrop([H, W])(targets)
@@ -64,14 +95,32 @@ def masked_relative_error(inputs, targets, q=None):
 
 
 def compute_loss(model,y_hat, y):
-        if model.loss_fn == "masked_mse":
-            return masked_mse(y_hat, y)
-        elif model.loss_fn == "masked_mse_eps":
-            return masked_mse_eps(y_hat, y, standartize=True, std=model.norm_std, mean=model.norm_mean)
-        else:
-            raise NotImplementedError(model.loss_fn + " not implemented")
+    """Computes the required loss
+
+    Args:
+        model (_type_): the saved NN model
+        y_hat (Pytorch tensor): True value of $\gamma$
+        y (Pytorch tensor): Estimated value of $\gamma$
+    Raises:
+        NotImplementedError: The given loss function is not implemented
+
+    Returns:
+        float: the loss
+    """    
+    if model.loss_fn == "masked_mse":
+        return masked_mse(y, y_hat, )
+    elif model.loss_fn == "masked_mse_eps":
+        return masked_mse_eps(y_hat, y, standartize=True, std=model.norm_std, mean=model.norm_mean)
+    else:
+        raise NotImplementedError(model.loss_fn + " not implemented")
 
 def epoch_end(self, outputs, step):
+    """Compute and save the metrics at the epoch end for the given step
+
+    Args:
+        outputs (Pytroch tensor): Metrics of the steps in the epoch
+        step (string): either "training" or "validation"
+    """    
 
     avg_loss = torch.stack([x['loss'] for x in outputs]).mean()
     avg_mean = torch.stack([x['rel_mean'] for x in outputs]).mean()
@@ -86,6 +135,14 @@ def epoch_end(self, outputs, step):
     self.log(step+'_'+str(self.q) +'_quantile', avg_q)
 
 def transform_crop(y):
+    """Crop the input tensor
+
+    Args:
+        y (Pytorch tensor): tensor to crop
+
+    Returns:
+        Pytorch tensor: cropped tensor
+    """    
     _, _, H, W = y.shape
     modif = False
     if W > 360:
@@ -101,29 +158,44 @@ def transform_crop(y):
 
 
 def step(self, batch):
-        x, y = batch
-        #y_hat = transform_crop(self.forward(x))
-        y_hat = self.forward(x)
-        # Calculate loss
-        loss = compute_loss(self, y_hat, y)
+    """Computes the metrics at the end of a step
 
-        if self.standarize_outputs:
-            idx = torch.nonzero(y).split(1, dim=1)
-            y[idx] = y[idx]*self.norm_std + self.norm_mean
-            y_hat = y_hat*self.norm_std + self.norm_mean
+    Args:
+        batch (_type_): Output of the :class: 'DataLoader'
 
-        if self.predict_inverse:
-            y_hat = 1/y_hat
-            y = 1/y
-        if not self.predict_squared:
-            y_hat = y_hat**2
-            y = y**2
+    Returns:
+        dictionary: dictionary of the metrics
+    """    
+    x, y = batch
+    y_hat = self.forward(x)
+    # Calculate loss
+    loss = compute_loss(self, y_hat, y)
 
-        rel_mean, rel_max, q_res, rmse = masked_relative_error(
-                    y_hat, y, self.q)
-        return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res, 'rmse':rmse}
+    if self.standarize_outputs:
+        idx = torch.nonzero(y).split(1, dim=1)
+        y[idx] = y[idx]*self.norm_std + self.norm_mean
+        y_hat = y_hat*self.norm_std + self.norm_mean
+
+    if self.predict_inverse:
+        y_hat = 1/y_hat
+        y = 1/y
+    if not self.predict_squared:
+        y_hat = y_hat**2
+        y = y**2
+
+    rel_mean, rel_max, q_res, rmse = masked_relative_error(
+                y_hat, y, self.q)
+    return {'loss': loss, 'rel_mean': rel_mean, 'rel_max': rel_max, 'rel_'+str(self.q) + "_quantile": q_res, 'rmse':rmse}
 
 def configure_optimizers(self):
+    """Apply the chosen optimizers
+
+    Raises:
+        NotImplementedError: the optimizer is not implemented
+
+    Returns:
+        class: the optimizer
+    """    
     # print(self.parameters())
     if self.optimizer == "Adamax":
         return torch.optim.Adamax(self.parameters())

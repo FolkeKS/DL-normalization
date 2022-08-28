@@ -104,12 +104,12 @@ model:
   predict_inverse: false
   loss_fn: masked_mse_eps
   q: 0.9999
-  data_dir: data/processed/sections/
+  data_dir: data/processed/newdata/
 
 
 data:
-  batch_size: 256
-  data_dir: data/processed/sections/
+  batch_size: 1
+  data_dir: data/processed/newdata/
   num_workers: 0
   gpus: 0
 ckpt_path: null

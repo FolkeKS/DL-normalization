@@ -27,10 +27,18 @@ class DirDataset(Dataset):
         Y_files = glob.glob(os.path.join(self.Y_dir, idx+'_norm_coeffs.*'))
         assert len(X_files) == 1, f'{idx}: {X_files}'
         assert len(Y_files) == 1, f'{idx}: {Y_files}'
-
+        # Load the input/true data 
         X = torch.from_numpy(np.load(X_files[0])['arr_0']).float()
         Y = torch.from_numpy(np.load(Y_files[0])['arr_0']).float()
-        # Make input image dimensions divisible by 32
+        #  Load the distance map
+        distance_map = np.load("data/python_sign_dist_map_std.npz")['arr_0']
+        distance_map = torch.from_numpy(distance_map).float()
+        # Crop the input data 
+        distance_map = transforms.CenterCrop([200, 360+2*10])(distance_map)
+        X = transforms.CenterCrop([200, 360+2*10])(X)
+        # Add the distance map        
+        X = torch.cat((X,torch.unsqueeze(distance_map, 0)),0)
+
         return X, \
             Y
 

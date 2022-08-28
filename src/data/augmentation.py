@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/ usr / bin / env python3
+#- * - coding : utf - 8 - * -
 """
 Created on Tue Jul 12 14:58:10 2022
 
@@ -11,6 +11,15 @@ import os
 import ast
 
 def addMap(X, dist_map):
+    """Add the sign distance map to the tensor X
+
+    Args:
+        X (numpy array): three-channels  image
+        dist_map (numpy array): sign distance map
+
+    Returns:
+        numpy array: four-channels image
+    """    
     _,H,W  = X.shape
 
     Y    = np.empty((4,H,W))
@@ -105,7 +114,7 @@ dist_map = np.load("data/sign_dist_map_std.npz")['arr_0']
 dst_dir = data_dir+"_augmented"
 shutil.copytree(data_dir, dst_dir)
 
-lines = open(   data_dir+"/dict_std_mean.txt").readlines()
+lines = open(data_dir+"/dict_std_mean.txt").readlines()
 dict_std = ast.literal_eval(lines[0][:-1])
 dict_mean = ast.literal_eval(lines[1])
 
@@ -125,7 +134,7 @@ for file in os.listdir(data_dir+"/train/X/"):
         saveX = dst_dir+"/train/X/"+file
         os.remove(saveX) 
         np.savez_compressed(saveX, X)
-        #rota 90
+#rota 90
         if rot90:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_90" 
             Xstd = X
@@ -134,11 +143,11 @@ for file in os.listdir(data_dir+"/train/X/"):
             Xstd[1] = X[1,:,:] * dict_std['alpha_j_minus'] + dict_mean['alpha_j_minus']
             Xstd[1,:,:] = (X[1,:,:] - dict_mean['alpha_i_minus']) / dict_std['alpha_i_minus']
             np.savez_compressed(saveX, rota_90(Xstd))
-        #rota 180
+#rota 180
         if rot180:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_180" 
             np.savez_compressed(saveX, rota_180(X))
-        #rota 270
+#rota 270
         if rot270:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_270" 
             Xstd = X
@@ -147,11 +156,11 @@ for file in os.listdir(data_dir+"/train/X/"):
             Xstd[1] = X[1,:,:] * dict_std['alpha_j_minus'] + dict_mean['alpha_j_minus']
             Xstd[1,:,:] = (X[1,:,:] - dict_mean['alpha_i_minus']) / dict_std['alpha_i_minus']
             np.savez_compressed(saveX, rota_270(Xstd))
-        #flip hor
+#flip hor
         if fliphor:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_flip_hor" 
             np.savez_compressed(saveX, flip_hor(X))
-        # flip vert
+#flip vert
         if flipvert:
             saveX = dst_dir+"/train/X/"+file.split('.')[0] + "_flip_vert" 
             np.savez_compressed(saveX, flip_vert(X))
@@ -168,23 +177,23 @@ for file in os.listdir(data_dir+"/train/Y/"):
         saveY = dst_dir+"/train/Y/"+file
         os.remove(saveY) 
         np.savez_compressed(saveY, Y)
-        #rota 90
+#rota 90
         if rot90:
             saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_90_norm_coeffs"
             np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(0,1)))
-        #rota 180
+#rota 180
         if rot180:
             saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_180_norm_coeffs"
             np.savez_compressed(saveY, np.rot90(Y, k=2, axes=(1,0)))
-        #rota 270
+#rota 270
         if rot270:
             saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_270_norm_coeffs"
             np.savez_compressed(saveY, np.rot90(Y, k=1, axes=(1,0)))
-        #flip hor
+#flip hor
         if fliphor:
             saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_flip_hor_norm_coeffs"
             np.savez_compressed(saveY, np.fliplr(Y))
-        #flip vert
+#flip vert
         if flipvert:
             saveY = dst_dir+"/train/Y/"+file.split("_norm_coeffs")[0] + "_flip_vert_norm_coeffs"
             np.savez_compressed(saveY, np.flipud(Y))
