@@ -29,11 +29,11 @@ conda config --set channel_priority true
 #+END_SRC
 ** Activate the environment:
 #+BEGIN_SRC bash
-bash conda activate DL-normalization
+conda activate DL-normalization
 #+END_SRC
 ** Setup project:
 #+BEGIN_SRC bash
-bash pip install -e .
+pip install -e .
 #+END_SRC
 
 * Set up wandb for experiment tracking:
