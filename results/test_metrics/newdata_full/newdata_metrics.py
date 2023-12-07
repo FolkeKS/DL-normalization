@@ -1,11 +1,4 @@
 
-# Initial model + ELU
-import results.test_metrics.models.cnn_map_ELU as cnn_map_ELU
-# Skip conections (1st architecture) 10/16/20 layers + ELU
-import results.test_metrics.models.cnn_map_block as cnn_map_block
-import results.test_metrics.models.cnn_map_block16 as cnn_map_block16
-import results.test_metrics.models.cnn_map_block20 as cnn_map_block20
-# Skip connnections (2nd architecture, resnet-like) + ELU
 import results.test_metrics.models.block as block
 
 import importlib
@@ -33,46 +26,12 @@ distance_map_std_eucl = np.load("data/sign_dist_map_std_eucl.npz")['arr_0']
 
 exps = []
 model_params = []
-### 10 skip co ELU eps
-exps.append("10_eps_skipco_ELU")
-model_path ="results/wandb/cnn/newdata/16ktmc02/checkpoints/epoch=49270-val_loss=0.61641.ckpt"
-model_params.append([True,True,distance_map_std,10, cnn_map_block.CNN.load_from_checkpoint(model_path) ])
-
-### 10 skip co ELU mse ga
-exps.append("10_gam_skipco_ELU")
-model_path ="results/wandb/cnn/newdata/2q9wmsu0/checkpoints/epoch=49933-val_loss=0.00000.ckpt"
-model_params.append([True,True,distance_map_std,10, cnn_map_block.CNN.load_from_checkpoint(model_path) ])
-
-### 10 skip co + flip hor
-exps.append("10_eps_skipco_flip_hor")
-model_path ="results/wandb/cnn/newdata/cif3vbsw/checkpoints/epoch=23989-val_loss=0.61641.ckpt"
-model_params.append([True,True,distance_map_std,10, cnn_map_block.CNN.load_from_checkpoint(model_path) ])
-
-
-### 10 skip co ELU eps 16l
-exps.append("10_eps_skipco_ELU_16l")
-model_path ="results/wandb/cnn/newdata/1ypk0h7s/checkpoints/epoch=48900-val_loss=0.61641.ckpt"
-model_params.append([True,True,distance_map_std,16, cnn_map_block16.CNN.load_from_checkpoint(model_path) ])
-
-### 10 skip co ELU eps Z0l
-exps.append("10_eps_skipco_ELU_20l")
-model_path ="results/wandb/cnn/newdata/2w3wp1xs/checkpoints/epoch=33891-val_loss=0.61642.ckpt"
-model_params.append([True,True,distance_map_std,20, cnn_map_block20.CNN.load_from_checkpoint(model_path) ])
 
 ### 10 skip co v2
 exps.append("10_eps_skipco_v2")
 model_path ="results/wandb/cnn/newdata/yyyre7s5/checkpoints/epoch=49303-val_loss=0.61641.ckpt"
 model_params.append([True,True,distance_map_std,10, block.CNN.load_from_checkpoint(model_path) ])
 
-### 10 ELU eps
-exps.append("10_eps_ELU")
-model_path ="results/wandb/cnn/newdata/qct996h0/checkpoints/epoch=49104-val_loss=0.61641.ckpt"
-model_params.append([True,True,distance_map_std,10, cnn_map_ELU.CNN.load_from_checkpoint(model_path) ])
-
-### 10 ELU mse gam
-exps.append("10_gam_ELU")
-model_path ="results/wandb/cnn/newdata/34lncdun/checkpoints/epoch=46812-val_loss=0.00000.ckpt"
-model_params.append([True,True,distance_map_std,10, cnn_map_ELU.CNN.load_from_checkpoint(model_path) ])
 
 f = open(data_dir+"dict_std_mean.txt")
 lines = f.readlines()
