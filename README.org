@@ -1,4 +1,3 @@
-The context for this work is described in [arxv], and the associated dataset is available [here](https://kaggle.com/datasets/e6e1e745161300b59a7ecf7695f02fedd5ab6f5853067004c127029d15fde68e). 
 
 #+title: Run the project
 #+author: Guillaume Coulaud
@@ -10,6 +9,9 @@ The context for this work is described in [arxv], and the associated dataset is 
 #+options: timestamp:nil
 #+OPTIONS: ^:nill
 #+OPTIONS: _:nill
+
+The context for this work is described in [a paper on arXiv], and the associated dataset is available [[https://kaggle.com/datasets/e6e1e745161300b59a7ecf7695f02fedd5ab6f5853067004c127029d15fde68e][here]]. 
+
 * Install the project
 #+BEGIN_SRC bash
 git clone https://github.com/FolkeKS/DL-normalization.git
@@ -100,7 +102,6 @@ class DirLightDataset(pl.LightningDataModule):
     - To continue a run after it has been stopped we set  ~ckpt_path: "results/wandb/cnn/36c5vu01/checkpoints/last.ckpt"~ (line 115). With ~"cnn/"~ the wandb project in which the run was created, and ~"36c5vu01"~ the 'id' of the run. We also set ~version: 36c5vu01~ (line 11) to make wandb continue the training in the run instead of creating a new run. The ~global_step~ variable will be reset, so the charts must be visualized with ~epoch~ or ~step~ as x-axis.
     - It is also possible to choose how the best checkpoint is selected (lines 20-35), we choose the checkpoint that minimizes the loss in validation, but other choices are possible as choosing the one minimizing the quantile. However, we have not found how to use two strategies for the same run.
 * Modify the code
-    <<sec:modify>>
     The model is loaded in scripts/trainer.py. Modifications are to be done in the config file but there are also modifications to make in the module loading the data in [[file:src/data/dataset.py]]:
     - adjust the padding, by default the padding is 31 for the latitude and 28 for the longitude. The images are cropped on the fly, the dimension of the image taken by the CNN is $4 \times (292+2\ell) \times (360 + 2\ell)$ with $\ell$ the number of layers
     - adding the sign distance map
@@ -134,7 +135,7 @@ class DirDataset(Dataset):
     To compute the metrics the test data had to be destandardized and then restandardized. All the data are standarized using the 10 training samples.
     We compute the mean and standard deviation of the mean/max/quantile 99,99% of the absolute relative error over the test dataset. We save the tensor of the relative error for each sample and save an image of the mean of the relative error. The code and results are in the repository [[file:results/test_metrics/]] each repository corresponds to a data set. To run the computation of the metrics, run the Python script from the root directory of the project. The configuration of the runs is added to a list ~model_params~, each element of this list is a list with the index corresponding to:
     1) [@0] Boolean: compute or not the metrics
-    2) Boolean: if the run uses the sign distance map
+    2) Boolean: whether the run uses the sign distance map
     3) Numpy array: the sign distance map
     4) Int: number of layers
     5) Class: the model loaded with the correct src
