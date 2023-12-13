@@ -10,7 +10,7 @@
 #+OPTIONS: ^:nill
 #+OPTIONS: _:nill
 
-The context for this work is described in [a paper on arXiv], and the associated dataset is available [[https://kaggle.com/datasets/e6e1e745161300b59a7ecf7695f02fedd5ab6f5853067004c127029d15fde68e][here]]. 
+The context for this work is described in [[https://arxiv.org/abs/2312.05068][a paper on arXiv]], and the associated dataset is available [[https://kaggle.com/datasets/e6e1e745161300b59a7ecf7695f02fedd5ab6f5853067004c127029d15fde68e][here]]. 
 
 * Install the project
 #+BEGIN_SRC bash
